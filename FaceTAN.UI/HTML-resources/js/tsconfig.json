@@ -1,0 +1,4 @@
+﻿{
+  "compileOnSave": true,
+  "compilerOptions": {"declaration": false,"importHelpers": true}
+}
