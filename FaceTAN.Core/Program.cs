@@ -1,4 +1,8 @@
-﻿using Amazon.Rekognition.Model;
+﻿using Amazon;
+using Amazon.Rekognition;
+using Amazon.Rekognition.Model;
+using FaceTAN.Core.ApiHandler;
+using FaceTAN.Core.Data;
 using Microsoft.ProjectOxford.Face.Contract;
 using System;
 using System.Collections.Generic;
@@ -14,9 +18,20 @@ namespace FaceTAN.Core
 
         static void Main(string[] args)
         {
+            // Setup DataSet
+            DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 255);
 
-            AmazonRekognitionHandler rekognitionContext = new AmazonRekognitionHandler("AKIAI2T6XBLFQ5XTPDDA", "m8EYnJl21SB3JeXzHNDAdlLJt3v3is0jGajVdSDX");
-            AzureFaceApiHandler azureContext = new AzureFaceApiHandler("1e16475cb1374f37ae67e43509933e2d", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
+            // Setup Amazon Api
+            Console.WriteLine("Setting up Amazon Rekognition API...");
+            AmazonRekognitionConfig rekognitionConfig = new AmazonRekognitionConfig
+            {
+                RegionEndpoint = RegionEndpoint.USWest2
+            };
+            AmazonApiHandler rekognition = new AmazonApiHandler("AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", rekognitionConfig, dataSet);
+            rekognition.RunApi(10);
+
+            //AmazonRekognitionHandler rekognitionContext = new AmazonRekognitionHandler("AKIAI2T6XBLFQ5XTPDDA", "m8EYnJl21SB3JeXzHNDAdlLJt3v3is0jGajVdSDX");
+            //AzureFaceApiHandler azureContext = new AzureFaceApiHandler("1e16475cb1374f37ae67e43509933e2d", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0");
 
             /*
             var groupID = Guid.NewGuid();
@@ -31,7 +46,7 @@ namespace FaceTAN.Core
              TESTS
             **************************/
             //AZURE Face API Example Test
-            TestAzure testInstance;
+            /*TestAzure testInstance;
             testInstance = new TestAzure(azureContext, "TestImages/EXAMPLE", "exampleImage1.jpg", "exampleImage2.jpg", true);
             testInstance.Run();
             testInstance = null;
@@ -42,7 +57,7 @@ namespace FaceTAN.Core
             TestAmazon Test;
             Test = new TestAmazon(rekognitionContext, "TestImages/EXAMPLE", "exampleImage1.jpg", "exampleImage2.jpg", true);
             Test.Run();
-            Test = null;
+            Test = null;*/
 
             //Prevent Console Exiting
             Console.WriteLine("Press Any Key To Continue...");

@@ -14,7 +14,7 @@ namespace FaceTAN.Core.Data
         {
             BucketName = bucketName;
             Credentials = new BasicAWSCredentials(accessKey, secretKey);
-            Client = new AmazonS3Client(Credentials);
+            Client = new AmazonS3Client(Credentials, Amazon.RegionEndpoint.USEast1);
             KeyList = GetKeyList(maxItems);
         }
 
@@ -24,7 +24,7 @@ namespace FaceTAN.Core.Data
 
         private AmazonS3Client Client { get; }
 
-        private List<string> KeyList { get; }
+        public List<string> KeyList { get; }
 
         private static Random Random = new Random();
 
@@ -49,21 +49,19 @@ namespace FaceTAN.Core.Data
         public Image GetImage(string key)
         {
             Image result;
-            using (Client)
+
+            GetObjectRequest request = new GetObjectRequest
             {
-                GetObjectRequest request = new GetObjectRequest
-                {
-                    BucketName = BucketName,
-                    Key = key
-                };
+                BucketName = BucketName,
+                Key = key
+            };
 
-                using (GetObjectResponse response = Client.GetObject(request))
-                using (Stream responseStream = response.ResponseStream)
-                {
-                    result = Image.FromStream(responseStream);
-                }
-
+            using (GetObjectResponse response = Client.GetObject(request))
+            using (Stream responseStream = response.ResponseStream)
+            {
+                result = Image.FromStream(responseStream);
             }
+
             return result;
         }
 

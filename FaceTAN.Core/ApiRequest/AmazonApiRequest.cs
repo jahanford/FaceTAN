@@ -1,4 +1,4 @@
-﻿using System.Drawing
+﻿using System.Drawing;
 
 namespace FaceTAN.Core.ApiRequest
 {
@@ -8,7 +8,5 @@ namespace FaceTAN.Core.ApiRequest
         {
 
         }
-
-        public Image sourceImage
     }
 }
