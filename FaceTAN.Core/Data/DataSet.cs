@@ -10,12 +10,15 @@ namespace FaceTAN.Core.Data
 {
     public class DataSet
     {
-        public DataSet(string bucketName, string accessKey, string secretKey, int maxItems)
+        public DataSet(string bucketName, string accessKey, string secretKey, int maxTargets)
         {
             BucketName = bucketName;
             Credentials = new BasicAWSCredentials(accessKey, secretKey);
             Client = new AmazonS3Client(Credentials, Amazon.RegionEndpoint.USEast1);
-            KeyList = GetKeyList(maxItems);
+            TargetImages = new Dictionary<string, Image>();
+            SourceImages = new Dictionary<string, Image>();
+            PopulateImages(maxTargets);
+
         }
 
         private string BucketName { get; }
@@ -24,23 +27,42 @@ namespace FaceTAN.Core.Data
 
         private AmazonS3Client Client { get; }
 
-        public List<string> KeyList { get; }
+        public Dictionary<string, Image> TargetImages { get; }
+
+        public Dictionary<string, Image> SourceImages { get; }
 
         private static Random Random = new Random();
 
         /*
          * Returns a list of all the images contained within the s3 bucket
          * */
-        public List<Image> GetAllImages()
+        public void PopulateImages(int maxImages)
         {
-            List<Image> result = new List<Image>();
+            Console.WriteLine("Populating DataSet from S3 bucket...");
+            List<string> keyList = GetKeyList();
 
-            KeyList.ForEach((key) =>
+            int count = 0;
+            foreach(string key in keyList)
             {
-                result.Add(GetImage(key));
-            });
+                if (key.EndsWith("0001.jpg"))
+                {
+                    TargetImages.Add(key, GetImage(key));
+                    Console.WriteLine("Image {0} retrieved.", key);
 
-            return result;
+                    string sourceKey = key.Substring(0, key.Length - 8) + "0002.jpg";
+                    if (keyList.Contains(sourceKey))
+                    {
+                        Console.WriteLine("Source image found: {0}", sourceKey);
+                        SourceImages.Add(sourceKey, GetImage(sourceKey));
+                    }
+
+                    count += 1;
+                    if (count >= maxImages)
+                        break;
+                }               
+            }
+
+            Console.WriteLine("DataSet population complete. {0} target images retrieved. {1} source images retrieved.", TargetImages.Count, SourceImages.Count);
         }
 
         /*
@@ -65,28 +87,22 @@ namespace FaceTAN.Core.Data
             return result;
         }
 
-
-        /*
-         * Returns a random image from the s3 bucket
-         * */
-        public Image GetRandomImage()
+        public Stream GetImageStream(string key)
         {
-            return GetImage(GetRandomKey());
-        }
+            GetObjectRequest request = new GetObjectRequest
+            {
+                BucketName = BucketName,
+                Key = key
+            };
 
-        /*
-         * Returns a random key from the list of file keys
-         * */
-        private string GetRandomKey()
-        {
-            int idx = Random.Next(KeyList.Count);
-            return KeyList[idx];
+            GetObjectResponse response = Client.GetObject(request);
+            return response.ResponseStream;
         }
 
         /*
          * Returns a complete list of all file keys contained in the amazon S3 bucket
          * */
-        private List<string> GetKeyList(int maxKeys)
+        private List<string> GetKeyList(int maxKeys = 256)
         {
             List<string> keyList = new List<string>();
 

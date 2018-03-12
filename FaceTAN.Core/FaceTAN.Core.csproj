@@ -128,16 +128,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiHandler\AmazonApiHandler.cs" />
-    <Compile Include="ApiRequest\AmazonApiRequest.cs" />
-    <Compile Include="ApiRequest\BaseApiRequest.cs" />
-    <Compile Include="ApiResponse\AmazonApiResponse.cs" />
-    <Compile Include="ApiResponse\BaseApiResponse.cs" />
-    <Compile Include="AsyncHelpers.cs" />
+    <Compile Include="ApiHandler\AzureApiHandler.cs" />
     <Compile Include="Data\DataSet.cs" />
-    <Compile Include="FacialRecognitionAPIs\APIHandlers\AmazonRekognitionHandler.cs" />
-    <Compile Include="FacialRecognitionAPIs\APIHandlers\AzureFaceApiHandler.cs" />
-    <Compile Include="FacialRecognitionAPIs\FacialRecognitionAPI.cs" />
-    <Compile Include="Helpers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

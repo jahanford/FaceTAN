@@ -1,5 +1,4 @@
-﻿using FaceTAN.Core.ApiRequest;
-using Amazon.Runtime;
+﻿using Amazon.Runtime;
 using Amazon.Rekognition;
 using Amazon.Rekognition.Model;
 using System.IO;
@@ -11,10 +10,11 @@ namespace FaceTAN.Core.ApiHandler
 {
     public class AmazonApiHandler
     {
-        public AmazonApiHandler(string accessKey, string secretKey, AmazonRekognitionConfig rekognitionConfig, DataSet dataSet)
+        public AmazonApiHandler(string accessKey, string secretKey, AmazonRekognitionConfig rekognitionConfig, DataSet dataSet, string collectionName)
         {
             AccessKey = accessKey;
             SecretKey = secretKey;
+            CollectionName = collectionName;
             Credentials = new BasicAWSCredentials(AccessKey, SecretKey);
             Client = new AmazonRekognitionClient(Credentials, rekognitionConfig);
             DataSet = dataSet;
@@ -30,44 +30,43 @@ namespace FaceTAN.Core.ApiHandler
 
         private string SecretKey { get; }
 
-        public void RunApi(int maxImages)
+        private string CollectionName { get; }
+
+        public void RunApi()
         {
-            string collectionName = "testcollection";
+            if (CollectionExists())
+                DeleteCollection();
 
-            if (CollectionExists(collectionName))
-                DeleteCollection(collectionName);
-
-            CreateCollection(collectionName);
-            List<FaceRecord> faceRecords = PopulateCollection(collectionName, maxImages);
-
-            Console.WriteLine("Detected {0} faces in {1} images.", faceRecords.Count, maxImages);
+            CreateCollection();
+            List<FaceRecord> faceRecords = PopulateCollection();
+            List<FaceMatch> faceMatches = SearchCollectionForSourceImageFaces();
         }
 
-        private bool CollectionExists(string collectionId)
+        private bool CollectionExists()
         {
             ListCollectionsRequest request = new ListCollectionsRequest();
             ListCollectionsResponse response = Client.ListCollections(request);
-            return response.CollectionIds.Contains(collectionId);
+            return response.CollectionIds.Contains(CollectionName);
         }
 
-        private void DeleteCollection(string collectionId)
+        private void DeleteCollection()
         {
-            Console.WriteLine("Deleting existing collection: {0}", collectionId);
+            Console.WriteLine("Deleting existing collection: {0}", CollectionName);
             DeleteCollectionRequest request = new DeleteCollectionRequest()
             {
-                CollectionId = collectionId
+                CollectionId = CollectionName
             };
 
             DeleteCollectionResponse response = Client.DeleteCollection(request);
             Console.WriteLine("Collection deleted.");
         }
             
-        private string CreateCollection(string collectionId)
+        private string CreateCollection()
         {
-            Console.WriteLine("Creating rekognition collection: {0}", collectionId);
+            Console.WriteLine("Creating rekognition collection: {0}", CollectionName);
             CreateCollectionRequest request = new CreateCollectionRequest()
             {
-                CollectionId = collectionId
+                CollectionId = CollectionName
             };
 
             CreateCollectionResponse response = Client.CreateCollection(request);
@@ -75,17 +74,16 @@ namespace FaceTAN.Core.ApiHandler
             return response.CollectionArn;
         }
 
-        private List<FaceRecord> PopulateCollection(string collectionId, int maxImages)
+        private List<FaceRecord> PopulateCollection()
         {
-            Console.WriteLine("Populating collection {0}: ", collectionId);
+            Console.WriteLine("Populating collection {0}: ", CollectionName);
             List<FaceRecord> result = new List<FaceRecord>();
 
-            int count = 0;
-            foreach (string key in DataSet.KeyList)
+            foreach(var entry in DataSet.TargetImages)
             {
-                Console.WriteLine("Processing image: {0}", key);
+                Console.WriteLine("Processing image: {0}", entry.Key);
                 MemoryStream stream = new MemoryStream();
-                DataSet.GetImage(key).Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                entry.Value.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
 
                 Image requestImage = new Image()
                 {
@@ -95,17 +93,50 @@ namespace FaceTAN.Core.ApiHandler
                 IndexFacesRequest request = new IndexFacesRequest()
                 {
                     Image = requestImage,
-                    CollectionId = collectionId
+                    CollectionId = CollectionName
                 };
 
                 IndexFacesResponse response = Client.IndexFaces(request);
                 result.AddRange(response.FaceRecords);
-
-                count += 1;
-                if (count >= maxImages)
-                    break;
             }
 
+            Console.WriteLine("Detected {0} faces in {1} images.", result.Count, DataSet.TargetImages.Count);
+            return result;
+        }
+
+        private List<FaceMatch> SearchCollectionForSourceImageFaces()
+        {
+            List<FaceMatch> result = new List<FaceMatch>();
+            Console.WriteLine("Searching target collection for matching source faces...");
+
+            foreach(var entry in DataSet.SourceImages)
+            {
+                Console.WriteLine("Attempting to match image {0}.", entry.Key);
+                MemoryStream stream = new MemoryStream();
+                entry.Value.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                Image requestImage = new Image()
+                {
+                    Bytes = stream
+                };
+
+                SearchFacesByImageRequest request = new SearchFacesByImageRequest()
+                {
+                    Image = requestImage,
+                    CollectionId = CollectionName
+                };
+
+                SearchFacesByImageResponse response = Client.SearchFacesByImage(request);
+
+                if (response.FaceMatches.Count > 0)
+                    Console.WriteLine("Matching target face found for {0} with a confidence level of {1}.", entry.Key, response.SearchedFaceConfidence);
+                else
+                    Console.WriteLine("No matching target face found for {0}.", entry.Key);
+
+                result.AddRange(response.FaceMatches);
+            }
+
+            Console.WriteLine("{0} out of {1} faces successfully matched.", result.Count, DataSet.SourceImages.Count);
             return result;
         }
     }
