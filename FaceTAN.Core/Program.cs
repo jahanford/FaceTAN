@@ -1,14 +1,8 @@
 ﻿using Amazon;
 using Amazon.Rekognition;
-using Amazon.Rekognition.Model;
 using FaceTAN.Core.ApiHandler;
 using FaceTAN.Core.Data;
-using Microsoft.ProjectOxford.Face.Contract;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FaceTAN.Core
