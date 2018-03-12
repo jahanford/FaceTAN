@@ -17,8 +17,17 @@ namespace FaceTAN.Core
     {
         static void Main(string[] args)
         {
+            // Get desired data set size from the user
+            Console.Write("Enter the desired target data set size: ");
+            int dataSetSize;
+            if (int.TryParse(Console.ReadLine(), out dataSetSize) == false)
+            {
+                dataSetSize = 8;
+                Console.WriteLine("Unable to parse input. Using default data set size of {0}", dataSetSize.ToString());
+            }
+
             // Setup DataSet
-            DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 8);
+            DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSetSize);
 
             //Setup & Run Amazon Api
             Console.WriteLine("Setting up Amazon Rekognition API...");
