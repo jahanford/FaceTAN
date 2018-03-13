@@ -5,19 +5,25 @@ using System.IO;
 using System.Collections.Generic;
 using System;
 using FaceTAN.Core.Data;
+using System.Threading.Tasks;
+using Amazon;
+using Newtonsoft.Json;
 
 namespace FaceTAN.Core.ApiHandler
 {
-    public class AmazonApiHandler
+    public class AmazonApiHandler : BaseApiHandler
     {
-        public AmazonApiHandler(string accessKey, string secretKey, AmazonRekognitionConfig rekognitionConfig, DataSet dataSet, string collectionName)
+        public AmazonApiHandler(string accessKey, string secretKey, DataSet dataSet, string collectionName)
         {
+            ApiName = "Amazon Rekognition";
             AccessKey = accessKey;
             SecretKey = secretKey;
             CollectionName = collectionName;
             Credentials = new BasicAWSCredentials(AccessKey, SecretKey);
-            Client = new AmazonRekognitionClient(Credentials, rekognitionConfig);
+            Client = new AmazonRekognitionClient(Credentials, new AmazonRekognitionConfig { RegionEndpoint = RegionEndpoint.USWest2 });
             DataSet = dataSet;
+            IndexedFaces = new List<IndexFacesResponse>();
+            MatchResults = new List<SearchFacesByImageResponse>();
         }
 
         private AWSCredentials Credentials { get; }
@@ -32,7 +38,10 @@ namespace FaceTAN.Core.ApiHandler
 
         private string CollectionName { get; }
 
-        public void RunApi()
+        private List<IndexFacesResponse> IndexedFaces { get; set; }
+        private List<SearchFacesByImageResponse> MatchResults { get; set; }
+
+        public override async Task RunApi()
         {
             if (CollectionExists())
                 DeleteCollection();
@@ -97,6 +106,7 @@ namespace FaceTAN.Core.ApiHandler
                 };
 
                 IndexFacesResponse response = Client.IndexFaces(request);
+                IndexedFaces.Add(response);
                 result.AddRange(response.FaceRecords);
             }
 
@@ -127,6 +137,7 @@ namespace FaceTAN.Core.ApiHandler
                 };
 
                 SearchFacesByImageResponse response = Client.SearchFacesByImage(request);
+                MatchResults.Add(response);
 
                 if (response.FaceMatches.Count > 0)
                     Console.WriteLine("Matching target face found for {0} with a confidence level of {1}.", entry.Key, response.SearchedFaceConfidence);
@@ -138,6 +149,21 @@ namespace FaceTAN.Core.ApiHandler
 
             Console.WriteLine("{0} out of {1} faces successfully matched.", result.Count, DataSet.SourceImages.Count);
             return result;
+        }
+
+        public override void ExportResults(string outputDirectory)
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt"))
+            {
+                serializer.Serialize(file, IndexedFaces);
+                Console.WriteLine("Wrote rekognition index face data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt"))
+            {
+                serializer.Serialize(file, MatchResults);
+                Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt");
+            }
         }
     }
 }

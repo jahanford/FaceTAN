@@ -1,8 +1,7 @@
-﻿using Amazon;
-using Amazon.Rekognition;
-using FaceTAN.Core.ApiHandler;
+﻿using FaceTAN.Core.ApiHandler;
 using FaceTAN.Core.Data;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FaceTAN.Core
@@ -23,20 +22,20 @@ namespace FaceTAN.Core
             // Setup DataSet
             DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSetSize);
 
-            //Setup & Run Amazon Api
-            Console.WriteLine("Setting up Amazon Rekognition API...");
-            AmazonRekognitionConfig rekognitionConfig = new AmazonRekognitionConfig
-            {
-                RegionEndpoint = RegionEndpoint.USWest2
-            };
-            AmazonApiHandler rekognition = new AmazonApiHandler("AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", rekognitionConfig, dataSet, "testcollection");
-            //rekognition.RunApi();
-            Console.WriteLine("Amazon Rekognition API run complete.");
+            //Setup the various APIs
+            List<BaseApiHandler> apiList = new List<BaseApiHandler>();
+            apiList.Add(new AmazonApiHandler("AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSet, "testcollection"));
+            apiList.Add(new AzureApiHandler("3ab30cd064c04013bd868bf7d7c8a2f4", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
 
-            // Setup & Run Azure Api
-            AzureApiHandler azure = new AzureApiHandler("3ab30cd064c04013bd868bf7d7c8a2f4", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet);
-            Task azureTask = azure.RunApi();
-            azureTask.Wait();
+            apiList.ForEach((api) =>
+            {
+                Console.WriteLine("Testing {0} API.", api.ApiName);
+                Task apiRun = api.RunApi();
+                apiRun.Wait();
+                Console.WriteLine("API {0} Complete. Exporting results...", api.ApiName);
+                api.ExportResults("D:\\Api Output");
+                Console.WriteLine("Export Complete.", api.ApiName);
+            });
 
             Console.WriteLine("Press Any Key To Continue...");
             Console.ReadKey();

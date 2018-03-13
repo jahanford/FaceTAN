@@ -6,17 +6,23 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace FaceTAN.Core.ApiHandler
 {
-    public class AzureApiHandler
+    public class AzureApiHandler : BaseApiHandler
     {
         public AzureApiHandler(string subscriptionKey, string region, string config, string personGroupId, DataSet dataSet)
         {
+            ApiName = "Azure";
             Client = new FaceServiceClient(subscriptionKey, region);
             DataSet = dataSet;
             PersonGroupId = personGroupId;
-        }
+            TargetFaceList = new List<Face>();
+            SourceFaceList = new List<Face>();
+            SourceMatchList = new List<IdentifyResult>();
+        }        
 
         private FaceServiceClient Client { get; }
 
@@ -24,10 +30,18 @@ namespace FaceTAN.Core.ApiHandler
 
         private string PersonGroupId { get; }
 
-        public async Task RunApi()
+        private List<Face> TargetFaceList { get; set; }
+
+        private List<Face> SourceFaceList { get; set; }
+
+        private List<IdentifyResult> SourceMatchList { get; set; }
+
+
+        public override async Task RunApi()
         {
             await InitApiAsync();
             await MatchSourceFaces();
+            return;
         }
 
         private async Task InitApiAsync()
@@ -134,10 +148,14 @@ namespace FaceTAN.Core.ApiHandler
             Console.WriteLine("Attempting to locate face in image.");
             Face[] faces = await Client.DetectAsync(DataSet.GetImageStream(key));
 
+
             if (faces.Length == 0)
                 return null;
             else
+            {
+                TargetFaceList.AddRange(faces);
                 return faces[0];
+            }
         }
 
         private async Task AddFaceToPerson(string key, Guid personId, Face personFace)
@@ -162,6 +180,9 @@ namespace FaceTAN.Core.ApiHandler
                 Guid[] faceIds = faces.Select(face => face.FaceId).ToArray();
                 IdentifyResult[] results = await Client.IdentifyAsync(PersonGroupId, faceIds);
 
+                SourceFaceList.AddRange(faces);
+                SourceMatchList.AddRange(results);
+
                 foreach (var identifyResult in results)
                 {
                     if (identifyResult.Candidates.Length == 0)
@@ -172,6 +193,26 @@ namespace FaceTAN.Core.ApiHandler
                         Console.WriteLine("Face identified as {0}", entry.Key);
                     }
                 }
+            }
+        }
+
+        public override void ExportResults(string outputDirectory)
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Target_Face_Data.txt"))
+            {
+                serializer.Serialize(file, TargetFaceList);
+                Console.WriteLine("Wrote azure target face data to {0}.", outputDirectory + "\\Azure\\Azure_Target_Face_Data.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Source_Face_Data.txt"))
+            {
+                serializer.Serialize(file, SourceFaceList);
+                Console.WriteLine("Wrote azure source face data to {0}.", outputDirectory + "\\Azure\\Azure_Source_Face_Data.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Match_Data.txt"))
+            {
+                serializer.Serialize(file, SourceMatchList);
+                Console.WriteLine("Wrote azure face match data to {0}.", outputDirectory + "\\Azure\\Azure_Match_Data.txt");
             }
         }
     }

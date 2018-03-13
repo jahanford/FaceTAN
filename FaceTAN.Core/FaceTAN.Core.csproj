@@ -129,6 +129,7 @@
   <ItemGroup>
     <Compile Include="ApiHandler\AmazonApiHandler.cs" />
     <Compile Include="ApiHandler\AzureApiHandler.cs" />
+    <Compile Include="ApiHandler\BaseApiHandler.cs" />
     <Compile Include="Data\DataSet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
