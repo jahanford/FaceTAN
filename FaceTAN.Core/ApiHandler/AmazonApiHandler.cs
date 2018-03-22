@@ -39,6 +39,7 @@ namespace FaceTAN.Core.ApiHandler
         private string CollectionName { get; }
 
         private List<IndexFacesResponse> IndexedFaces { get; set; }
+
         private List<SearchFacesByImageResponse> MatchResults { get; set; }
 
         public override async Task RunApi()
@@ -49,6 +50,23 @@ namespace FaceTAN.Core.ApiHandler
             CreateCollection();
             List<FaceRecord> faceRecords = PopulateCollection();
             List<FaceMatch> faceMatches = SearchCollectionForSourceImageFaces();
+        }
+
+        public override void ExportResults(string outputDirectory)
+        {
+            Directory.CreateDirectory(outputDirectory + "\\Rekognition");
+
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt"))
+            {
+                serializer.Serialize(file, IndexedFaces);
+                Console.WriteLine("Wrote rekognition index face data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt"))
+            {
+                serializer.Serialize(file, MatchResults);
+                Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt");
+            }
         }
 
         private bool CollectionExists()
@@ -149,21 +167,6 @@ namespace FaceTAN.Core.ApiHandler
 
             Console.WriteLine("{0} out of {1} faces successfully matched.", result.Count, DataSet.SourceImages.Count);
             return result;
-        }
-
-        public override void ExportResults(string outputDirectory)
-        {
-            JsonSerializer serializer = new JsonSerializer();
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt"))
-            {
-                serializer.Serialize(file, IndexedFaces);
-                Console.WriteLine("Wrote rekognition index face data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt");
-            }
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt"))
-            {
-                serializer.Serialize(file, MatchResults);
-                Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt");
-            }
         }
     }
 }

@@ -44,6 +44,28 @@ namespace FaceTAN.Core.ApiHandler
             return;
         }
 
+        public override void ExportResults(string outputDirectory)
+        {
+            Directory.CreateDirectory(outputDirectory + "\\Azure");
+
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Target_Face_Data.txt"))
+            {
+                serializer.Serialize(file, TargetFaceList);
+                Console.WriteLine("Wrote azure target face data to {0}.", outputDirectory + "\\Azure\\Azure_Target_Face_Data.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Source_Face_Data.txt"))
+            {
+                serializer.Serialize(file, SourceFaceList);
+                Console.WriteLine("Wrote azure source face data to {0}.", outputDirectory + "\\Azure\\Azure_Source_Face_Data.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Match_Data.txt"))
+            {
+                serializer.Serialize(file, SourceMatchList);
+                Console.WriteLine("Wrote azure face match data to {0}.", outputDirectory + "\\Azure\\Azure_Match_Data.txt");
+            }
+        }
+
         private async Task InitApiAsync()
         {
             PersonGroup[] existingGroups = await Client.ListPersonGroupsAsync();
@@ -196,24 +218,5 @@ namespace FaceTAN.Core.ApiHandler
             }
         }
 
-        public override void ExportResults(string outputDirectory)
-        {
-            JsonSerializer serializer = new JsonSerializer();
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Target_Face_Data.txt"))
-            {
-                serializer.Serialize(file, TargetFaceList);
-                Console.WriteLine("Wrote azure target face data to {0}.", outputDirectory + "\\Azure\\Azure_Target_Face_Data.txt");
-            }
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Source_Face_Data.txt"))
-            {
-                serializer.Serialize(file, SourceFaceList);
-                Console.WriteLine("Wrote azure source face data to {0}.", outputDirectory + "\\Azure\\Azure_Source_Face_Data.txt");
-            }
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Match_Data.txt"))
-            {
-                serializer.Serialize(file, SourceMatchList);
-                Console.WriteLine("Wrote azure face match data to {0}.", outputDirectory + "\\Azure\\Azure_Match_Data.txt");
-            }
-        }
     }
 }
