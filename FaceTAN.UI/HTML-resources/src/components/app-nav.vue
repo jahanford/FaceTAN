@@ -70,10 +70,10 @@ export default class AppNav extends Vue{
 
             li{
                 width: 100%;
-                padding: 25px 0;
+                padding: 18px 0;
                 color: #000;
                 font-family: 'Segoe UI';
-                font-size: 1.5em;
+                font-size: 1.2em;
                 letter-spacing: 1px;
                 font-weight: 200;              
 

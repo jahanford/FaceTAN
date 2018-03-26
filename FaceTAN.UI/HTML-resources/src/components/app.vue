@@ -35,10 +35,14 @@ body {
         margin-left: 40%;
 
         font-family: 'Segoe UI';
-        font-size: 3em;
+        font-size: 2em;
         letter-spacing: 1px;
         font-weight: 200;  
         padding-top: 50px;
+    }
+
+    img{
+        padding-top: 60px;
     }
 }
 </style>
