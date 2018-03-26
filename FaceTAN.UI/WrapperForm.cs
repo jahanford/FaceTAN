@@ -17,11 +17,19 @@ namespace FaceTAN.UI
     public partial class WrapperForm : Form
     {
         static string onLoadURL = string.Format(Application.StartupPath + @"..\..\..\..\" + @"\html-resources\index.html");
-        private readonly ChromiumWebBrowser chromium;
+        private readonly ChromiumWebBrowser chromium;     
 
         public WrapperForm()
         {
+            //this.FormBorderStyle = FormBorderStyle.None;
+            this.HScroll = false;
+            this.VScroll = false;
+
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.ShowIcon = false;
+
             InitializeComponent();
+            this.Text = "FaceTan UI";
 
             CefInstance CefContext = new CefInstance();
 
@@ -29,7 +37,8 @@ namespace FaceTAN.UI
             {
                 Name = Guid.NewGuid().ToString(),
                 Dock = DockStyle.Fill,
-                MenuHandler = new MenuHandler()
+                MenuHandler = new MenuHandler(),
+                Top = 0
             };
             this.Controls.Add(chromium);
 
@@ -62,7 +71,6 @@ namespace FaceTAN.UI
             }
         }
 
-        /* UNCOMMENT FOR BORDERLESS FORM
         const int WM_NCHITTEST = 0x0084;
         const int HTCLIENT = 1;
         const int HTCAPTION = 2;
@@ -88,7 +96,7 @@ namespace FaceTAN.UI
                 cp.Style |= 0x40000;
                 return cp;
             }
-        }*/
+        }
 
         private void IntializeEventHandlers()
         {
