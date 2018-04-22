@@ -148,6 +148,7 @@
     <Compile Include="ApiHandler\AnimetricsApiHandler.cs" />
     <Compile Include="ApiHandler\AzureApiHandler.cs" />
     <Compile Include="ApiHandler\BaseApiHandler.cs" />
+    <Compile Include="ApiHandler\LambdaApiHandler.cs" />
     <Compile Include="Data\Models\Animetrics\Detect\AnimetricsDetectResponse.cs" />
     <Compile Include="Data\Models\Animetrics\Detect\AnimetricsDetectFace.cs" />
     <Compile Include="Data\Models\Animetrics\Detect\AnimetricsDetectImage.cs" />
@@ -159,6 +160,15 @@
     <Compile Include="Data\Models\Animetrics\Recognize\AnimetricsRecognizeTransaction.cs" />
     <Compile Include="Data\Models\Animetrics\Recognize\AnimetricsRecognizeImage.cs" />
     <Compile Include="Data\Models\Animetrics\Recognize\AnimetricsRecognizeResponse.cs" />
+    <Compile Include="Data\Models\Lambda\CreateAlbum\LambdaCreateAlbumResponse.cs" />
+    <Compile Include="Data\Models\Lambda\RebuildAlbum\LambdaRebuildAlbumResponse.cs" />
+    <Compile Include="Data\Models\Lambda\Recognize\LambdaRecognizePhotos.cs" />
+    <Compile Include="Data\Models\Lambda\Recognize\LambdaRecognizeResponse.cs" />
+    <Compile Include="Data\Models\Lambda\Recognize\LambdaRecognizeTags.cs" />
+    <Compile Include="Data\Models\Lambda\Recognize\Tags\AttributeTag.cs" />
+    <Compile Include="Data\Models\Lambda\Recognize\Tags\CoordinateTag.cs" />
+    <Compile Include="Data\Models\Lambda\Recognize\Tags\UidTag.cs" />
+    <Compile Include="Data\Models\Lambda\TrainAlbum\LambdaTrainAlbumResponse.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

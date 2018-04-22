@@ -24,9 +24,10 @@ namespace FaceTAN.Core
 
             //Setup the various APIs
             List<BaseApiHandler> apiList = new List<BaseApiHandler>();
-            apiList.Add(new AmazonApiHandler("AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSet, "testcollection"));
-            apiList.Add(new AzureApiHandler("3ab30cd064c04013bd868bf7d7c8a2f4", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
-            apiList.Add(new AnimetricsApiHandler("bb94491f82ca57cb695b63812c7b12af", "http://23.21.173.192/v2/", "test_gallery", dataSet));
+            //apiList.Add(new AmazonApiHandler("AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSet, "testcollection"));
+            //apiList.Add(new AzureApiHandler("3ab30cd064c04013bd868bf7d7c8a2f4", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
+            //apiList.Add(new AnimetricsApiHandler("bb94491f82ca57cb695b63812c7b12af", "http://23.21.173.192/v2/", "test_gallery", dataSet));
+            apiList.Add(new LambdaApiHandler("UINlGk5i5lmsha6RTFLEbd1XL65Ap1Y5kq2jsnuaYrGkAyQcCg", "https://lambda-face-recognition.p.mashape.com/", dataSet));
 
             apiList.ForEach((api) =>
             {
