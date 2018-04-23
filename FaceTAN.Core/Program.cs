@@ -2,6 +2,7 @@
 using FaceTAN.Core.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FaceTAN.Core
@@ -19,24 +20,39 @@ namespace FaceTAN.Core
                 Console.WriteLine("Unable to parse input. Using default data set size of {0}", dataSetSize.ToString());
             }
 
+            // Setup API key stores
+            ApiKeyStore amazonAccessKeys = new ApiKeyStore(new[] { "AKIAJJKYA2TLOIPHNNVA" });
+            ApiKeyStore amazonPrivateKeys = new ApiKeyStore(new[] { "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A" });
+            ApiKeyStore azureKeys = new ApiKeyStore(new[] { "3ab30cd064c04013bd868bf7d7c8a2f4" });
+            ApiKeyStore animetricsKeys = new ApiKeyStore(new[] { "bb94491f82ca57cb695b63812c7b12af" });
+            ApiKeyStore lambdaKeys = new ApiKeyStore(new[] { "UINlGk5i5lmsha6RTFLEbd1XL65Ap1Y5kq2jsnuaYrGkAyQcCg" });
+
             // Setup DataSet
             DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSetSize);
 
+            // Setup SubSets
+            List<SubSet> subSets = new List<SubSet>();
+            subSets.Add(new SubSet(dataSet.TargetImages.Keys.ToList(), dataSet.SourceImages.Keys.ToList())); // Add all dataset images to a subset
+
             //Setup the various APIs
             List<BaseApiHandler> apiList = new List<BaseApiHandler>();
-            //apiList.Add(new AmazonApiHandler("AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSet, "testcollection"));
-            //apiList.Add(new AzureApiHandler("3ab30cd064c04013bd868bf7d7c8a2f4", "https://westcentralus.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
-            //apiList.Add(new AnimetricsApiHandler("bb94491f82ca57cb695b63812c7b12af", "http://23.21.173.192/v2/", "test_gallery", dataSet));
-            apiList.Add(new LambdaApiHandler("UINlGk5i5lmsha6RTFLEbd1XL65Ap1Y5kq2jsnuaYrGkAyQcCg", "https://lambda-face-recognition.p.mashape.com/", dataSet));
+            apiList.Add(new AmazonApiHandler(amazonAccessKeys, amazonPrivateKeys, dataSet, "testcollection"));
+            apiList.Add(new AzureApiHandler(azureKeys, "https://westcentralus.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
+            apiList.Add(new AnimetricsApiHandler(animetricsKeys, "http://23.21.173.192/v2/", "test_gallery", dataSet));
+            apiList.Add(new LambdaApiHandler(lambdaKeys, "https://lambda-face-recognition.p.mashape.com/", dataSet));
 
-            apiList.ForEach((api) =>
+            subSets.ForEach((subset) =>
             {
-                Console.WriteLine("Testing {0} API.", api.ApiName);
-                Task apiRun = api.RunApi();
-                apiRun.Wait();
-                Console.WriteLine("API {0} Complete. Exporting results...", api.ApiName);
-                api.ExportResults("D:\\Api Output");
-                Console.WriteLine("Export Complete.", api.ApiName);
+                Console.WriteLine("Running APIs for subset %1", subset.SubSetId);
+                apiList.ForEach((api) =>
+                { 
+                    Console.WriteLine("Testing {0} API.", api.ApiName);
+                    Task apiRun = api.RunApi();
+                    apiRun.Wait();
+                    Console.WriteLine("API {0} Complete. Exporting results...", api.ApiName);
+                    api.ExportResults("D:\\Api Output");
+                    Console.WriteLine("Export Complete.", api.ApiName);
+                });
             });
 
             Console.WriteLine("Press Any Key To Continue...");

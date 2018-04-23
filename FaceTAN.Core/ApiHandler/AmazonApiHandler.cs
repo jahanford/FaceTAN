@@ -13,13 +13,13 @@ namespace FaceTAN.Core.ApiHandler
 {
     public class AmazonApiHandler : BaseApiHandler
     {
-        public AmazonApiHandler(string accessKey, string secretKey, DataSet dataSet, string collectionName)
+        public AmazonApiHandler(ApiKeyStore accessKeys, ApiKeyStore secretKeys, DataSet dataSet, string collectionName)
         {
             ApiName = "Amazon Rekognition";
-            AccessKey = accessKey;
-            SecretKey = secretKey;
+            AccessKeys = accessKeys;
+            SecretKeys = secretKeys;
             CollectionName = collectionName;
-            Credentials = new BasicAWSCredentials(AccessKey, SecretKey);
+            Credentials = new BasicAWSCredentials(AccessKeys.GetCurrentKey(), SecretKeys.GetCurrentKey());
             Client = new AmazonRekognitionClient(Credentials, new AmazonRekognitionConfig { RegionEndpoint = RegionEndpoint.USWest2 });
             DataSet = dataSet;
             IndexedFaces = new List<IndexFacesResponse>();
@@ -32,9 +32,9 @@ namespace FaceTAN.Core.ApiHandler
 
         private DataSet DataSet { get; }
 
-        private string AccessKey { get; }
+        private ApiKeyStore AccessKeys { get; }
 
-        private string SecretKey { get; }
+        private ApiKeyStore SecretKeys { get; }
 
         private string CollectionName { get; }
 
