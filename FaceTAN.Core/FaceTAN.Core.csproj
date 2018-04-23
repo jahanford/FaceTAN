@@ -149,6 +149,7 @@
     <Compile Include="ApiHandler\AzureApiHandler.cs" />
     <Compile Include="ApiHandler\BaseApiHandler.cs" />
     <Compile Include="ApiHandler\LambdaApiHandler.cs" />
+    <Compile Include="Data\ApiKeyStore.cs" />
     <Compile Include="Data\Models\Animetrics\Detect\AnimetricsDetectResponse.cs" />
     <Compile Include="Data\Models\Animetrics\Detect\AnimetricsDetectFace.cs" />
     <Compile Include="Data\Models\Animetrics\Detect\AnimetricsDetectImage.cs" />
@@ -169,6 +170,7 @@
     <Compile Include="Data\Models\Lambda\Recognize\Tags\CoordinateTag.cs" />
     <Compile Include="Data\Models\Lambda\Recognize\Tags\UidTag.cs" />
     <Compile Include="Data\Models\Lambda\TrainAlbum\LambdaTrainAlbumResponse.cs" />
+    <Compile Include="Data\SubSet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -5,22 +5,23 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Polly;
 using unirest_net.http;
 
 namespace FaceTAN.Core.ApiHandler
 {
     public class AnimetricsApiHandler : BaseApiHandler
     {
-        public AnimetricsApiHandler(string apiKey, string baseUrl, string galleryId, DataSet dataSet)
+        public AnimetricsApiHandler(ApiKeyStore apiKeys, string baseUrl, string galleryId, DataSet dataSet)
         {
             ApiName = "Animetrics FaceR";
-            ApiKey = apiKey;
+            ApiKeys = apiKeys;
             BaseUrl = baseUrl;
             GalleryId = galleryId;
             DataSet = dataSet;
         }
 
-        private string ApiKey { get; }
+        private ApiKeyStore ApiKeys { get; }
 
         private string BaseUrl { get; }
 
@@ -92,20 +93,12 @@ namespace FaceTAN.Core.ApiHandler
                 MemoryStream imageStream = new MemoryStream();
                 DataSet.GetImage(entry.Key).Save(imageStream, System.Drawing.Imaging.ImageFormat.Jpeg);
 
-                string responseJson = Unirest.post(BaseUrl + "detect")
-                    .header("Accept", "application/json")
-                    .field("api_key", ApiKey)
-                    .field("selector", "FULL")
-                    .field("image", imageStream.ToArray())
-                    .asString().Body;
-
-                AnimetricsDetectResponse response = JsonConvert.DeserializeObject<AnimetricsDetectResponse>(responseJson);
-
-                if (response.images == null)
+                var retryPolicy = Policy.HandleResult<AnimetricsDetectResponse>(r => r.images == null).Retry(3, (exception, retryCount) =>
                 {
-                    Console.WriteLine("Error: {0}.", responseJson);
-                    return null;
-                }
+                    ApiKeys.NextKey();
+                });
+
+                AnimetricsDetectResponse response = retryPolicy.Execute(() => DetectFace(imageStream));
 
                 if (response.images[0].faces.Count > 0 && response != null)
                 {
@@ -121,15 +114,41 @@ namespace FaceTAN.Core.ApiHandler
             return result;
         }
 
+        private AnimetricsDetectResponse DetectFace(MemoryStream stream)
+        {
+            string responseJson = Unirest.post(BaseUrl + "detect")
+                    .header("Accept", "application/json")
+                    .field("api_key", ApiKeys.GetCurrentKey())
+                    .field("selector", "FULL")
+                    .field("image", stream.ToArray())
+                    .asString().Body;
+            AnimetricsDetectResponse response = JsonConvert.DeserializeObject<AnimetricsDetectResponse>(responseJson);
+            return response;
+        }
+
         private List<AnimetricsEnrollResponse> EnrollTargetFaces()
         {
             List<AnimetricsEnrollResponse> result = new List<AnimetricsEnrollResponse>();
 
             foreach (var entry in DetectedTargetFaces)
             {
-                HttpResponse<string> response = Unirest.post(BaseUrl + "detect")
+                var retryPolicy = Policy.HandleResult<AnimetricsEnrollResponse>(r => r.images == null).Retry(3, (exception, retryCount) =>
+                {
+                    ApiKeys.NextKey();
+                });
+
+                AnimetricsEnrollResponse response = retryPolicy.Execute(() => EnrollFace(entry));
+                Console.WriteLine("Image {0} enrolled.", entry.Key);
+                result.Add(response);
+            }
+            return result;
+        }
+
+        private AnimetricsEnrollResponse EnrollFace(KeyValuePair<string, AnimetricsDetectResponse> entry)
+        {
+            HttpResponse<string> response = Unirest.post(BaseUrl + "detect")
                     .header("Accept", "application/json")
-                    .field("api_key", ApiKey)
+                    .field("api_key", ApiKeys.GetCurrentKey())
                     .field("subject_id", entry.Key)
                     .field("gallery_id", GalleryId)
                     .field("image_id", entry.Value.images[0].image_id)
@@ -138,10 +157,8 @@ namespace FaceTAN.Core.ApiHandler
                     .field("width", entry.Value.images[0].width)
                     .field("height", entry.Value.images[0].height)
                     .asString();
-                Console.WriteLine("Image {0} enrolled.", entry.Key);
-                result.Add(JsonConvert.DeserializeObject<AnimetricsEnrollResponse>(response.Body));
-            }
-            return result;
+
+            return JsonConvert.DeserializeObject<AnimetricsEnrollResponse>(response.Body);
         }
 
         private List<AnimetricsRecognizeResponse> RecognizeSourceFaces()
@@ -150,9 +167,24 @@ namespace FaceTAN.Core.ApiHandler
 
             foreach (var entry in DetectedSourceFaces)
             {
-                HttpResponse<string> response = Unirest.post(BaseUrl + "detect")
+                var retryPolicy = Policy.HandleResult<AnimetricsRecognizeResponse>(r => r.images == null).Retry(3, (exception, retryCount) =>
+                {
+                    ApiKeys.NextKey();
+                });
+
+                AnimetricsRecognizeResponse response = retryPolicy.Execute(() => RecognizeFace(entry));
+
+                Console.WriteLine("Face recognized in source image {0}.", entry.Key);
+                result.Add(response);
+            }
+            return result;
+        }
+
+        private AnimetricsRecognizeResponse RecognizeFace(KeyValuePair<string, AnimetricsDetectResponse> entry)
+        {
+            HttpResponse<string> response = Unirest.post(BaseUrl + "detect")
                     .header("Accept", "application/json")
-                    .field("api_key", ApiKey)
+                    .field("api_key", ApiKeys.GetCurrentKey())
                     .field("gallery_id", GalleryId)
                     .field("image_id", entry.Value.images[0].image_id)
                     .field("max_num_results", 10)
@@ -161,10 +193,8 @@ namespace FaceTAN.Core.ApiHandler
                     .field("width", entry.Value.images[0].width)
                     .field("height", entry.Value.images[0].height)
                     .asString();
-                Console.WriteLine("Face recognized in source image {0}.", entry.Key);
-                result.Add(JsonConvert.DeserializeObject<AnimetricsRecognizeResponse>(response.Body));
-            }
-            return result;
+
+            return JsonConvert.DeserializeObject<AnimetricsRecognizeResponse>(response.Body);
         }
     }
 }

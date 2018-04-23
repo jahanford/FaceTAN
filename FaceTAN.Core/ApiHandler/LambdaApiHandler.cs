@@ -11,15 +11,15 @@ namespace FaceTAN.Core.ApiHandler
 {
     public class LambdaApiHandler : BaseApiHandler
     {
-        public LambdaApiHandler(string apiKey, string baseUrl, DataSet dataSet)
+        public LambdaApiHandler(ApiKeyStore apiKeys, string baseUrl, DataSet dataSet)
         {
             ApiName = "Lambda Labs";
-            ApiKey = apiKey;
+            ApiKeys = apiKeys;
             BaseUrl = baseUrl;
             DataSet = dataSet;
         }
 
-        private string ApiKey { get; set; }
+        private ApiKeyStore ApiKeys { get; set; }
 
         private string AlbumName { get; set; }
 
@@ -71,7 +71,7 @@ namespace FaceTAN.Core.ApiHandler
         private LambdaCreateAlbumResponse CreateAlbum()
         {
             string responseJson = Unirest.post(BaseUrl + "album")
-                .header("X-Mashape-Key", ApiKey)
+                .header("X-Mashape-Key", ApiKeys.GetCurrentKey())
                 .header("Accept", "application/json")
                 .field("album", Guid.NewGuid())
                 .asString().Body;
@@ -92,7 +92,7 @@ namespace FaceTAN.Core.ApiHandler
                 string entryId = entry.Key.Split('/')[1].Split('.')[0].Replace("_", "");
 
                 HttpResponse<string> response = Unirest.post(BaseUrl + "album_train")
-                    .header("X-Mashape-Key", ApiKey)
+                    .header("X-Mashape-Key", ApiKeys.GetCurrentKey())
                     .header("accept", "application/json")
                     .field("album", AlbumName)
                     .field("albumkey", albumId)
@@ -119,7 +119,7 @@ namespace FaceTAN.Core.ApiHandler
         private LambdaRebuildAlbumResponse RebuildAlbum(string albumId)
         {
             string responseJson = Unirest.get(BaseUrl + "album_rebuild" + string.Format("?album={0}&albumkey={1}", AlbumName, albumId))
-                    .header("X-Mashape-Key", ApiKey)
+                    .header("X-Mashape-Key", ApiKeys.GetCurrentKey())
                     .header("Accept", "application/json")
                     .asString().Body;
             return JsonConvert.DeserializeObject<LambdaRebuildAlbumResponse>(responseJson);
@@ -136,7 +136,7 @@ namespace FaceTAN.Core.ApiHandler
                 byte[] data = imageStream.ToArray();
 
                 string responseJson = Unirest.post(BaseUrl + "recognize")
-                    .header("X-Mashape-Key", ApiKey)
+                    .header("X-Mashape-Key", ApiKeys.GetCurrentKey())
                     .header("Accept", "application/json")
                     .field("album", AlbumName)
                     .field("albumkey", albumId)

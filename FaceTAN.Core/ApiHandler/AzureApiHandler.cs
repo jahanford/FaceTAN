@@ -8,25 +8,32 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
+using Polly;
 
 namespace FaceTAN.Core.ApiHandler
 {
     public class AzureApiHandler : BaseApiHandler
     {
-        public AzureApiHandler(string subscriptionKey, string region, string config, string personGroupId, DataSet dataSet)
+        public AzureApiHandler(ApiKeyStore apiKeys, string region, string config, string personGroupId, DataSet dataSet)
         {
             ApiName = "Azure";
-            Client = new FaceServiceClient(subscriptionKey, region);
+            ApiKeys = apiKeys;
+            Region = region;
+            Client = new FaceServiceClient(ApiKeys.GetCurrentKey(), Region);
             DataSet = dataSet;
             PersonGroupId = personGroupId;
             TargetFaceList = new List<Face>();
             SourceFaceList = new List<Face>();
             SourceMatchList = new List<IdentifyResult>();
-        }        
+        }
 
-        private FaceServiceClient Client { get; }
+        private ApiKeyStore ApiKeys;
+
+        private FaceServiceClient Client { get; set; }
 
         private DataSet DataSet { get; }
+
+        private string Region { get; }
 
         private string PersonGroupId { get; }
 
@@ -89,19 +96,15 @@ namespace FaceTAN.Core.ApiHandler
             Guid personId = new Guid();
             Face personFace = null;
 
-            try
+            var addRetryPolicy = Policy.Handle<FaceAPIException>().Retry(3, (exception, retryCount) =>
             {
-                personId = await AddPerson(entry.Key);
-            }
-            catch (FaceAPIException e)
-            {
-                if (e.ErrorCode == "RateLimitExceeded")
-                {
-                    Console.WriteLine("API rate limit exceeded. Retrying in 60 seconds...");
-                    Task.Delay(60000).Wait();
-                }
-                personId = await AddPerson(entry.Key);
-            }
+                Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
+                ApiKeys.NextKey();
+                Client = new FaceServiceClient(ApiKeys.GetCurrentKey(), Region);
+                Console.WriteLine("Now using API key {0}.", ApiKeys.GetCurrentKey());
+
+            });
+            personId = await addRetryPolicy.ExecuteAsync(async () => await AddPerson(entry.Key));
 
             if (personId == new Guid())
             {
@@ -109,19 +112,14 @@ namespace FaceTAN.Core.ApiHandler
                 return;
             }
 
-            try
+            var findRetryPolicy = Policy.Handle<FaceAPIException>().Retry(3, (exception, retryCount) =>
             {
-                personFace = await FindFace(entry.Key);
-            }
-            catch (FaceAPIException e)
-            {
-                if (e.ErrorCode == "RateLimitExceeded")
-                {
-                    Console.WriteLine("API rate limit exceeded. Retrying in 60 seconds...");
-                    Task.Delay(60000).Wait();
-                }
-                await FindFace(entry.Key);
-            }
+                Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
+                ApiKeys.NextKey();
+                Client = new FaceServiceClient(ApiKeys.GetCurrentKey(), Region);
+                Console.WriteLine("Now using API key {0}.", ApiKeys.GetCurrentKey());
+            });
+            personFace = await findRetryPolicy.ExecuteAsync(async () => await FindFace(entry.Key));
 
             if (personFace == null)
             {
@@ -129,33 +127,24 @@ namespace FaceTAN.Core.ApiHandler
                 return;
             }
 
-            try
+            var addFaceRetryPolicy = Policy.Handle<FaceAPIException>().Retry(3, (exception, retryCount) =>
             {
-                await AddFaceToPerson(entry.Key, personId, personFace);
-            }
-            catch (FaceAPIException e)
-            {
-                if (e.ErrorCode == "RateLimitExceeded")
-                {
-                    Console.WriteLine("API rate limit exceeded. Retrying in 60 seconds...");
-                    Task.Delay(60000).Wait();
-                }
-                await AddFaceToPerson(entry.Key, personId, personFace);
-            }
+                Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
+                ApiKeys.NextKey();
+                Client = new FaceServiceClient(ApiKeys.GetCurrentKey(), Region);
+                Console.WriteLine("Now using API key {0}.", ApiKeys.GetCurrentKey());
+            });
+            await addFaceRetryPolicy.ExecuteAsync(async () => await AddFaceToPerson(entry.Key, personId, personFace));
 
-            try
+
+            var trainRetryPolicy = Policy.Handle<FaceAPIException>().Retry(3, (exception, retryCount) =>
             {
-                await TrainPersonGroup();
-            }
-            catch (FaceAPIException e)
-            {
-                if (e.ErrorCode == "RateLimitExceeded")
-                {
-                    Console.WriteLine("API rate limit exceeded. Retrying in 60 seconds...");
-                    Task.Delay(60000).Wait();
-                }
-                await TrainPersonGroup();
-            }
+                Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
+                ApiKeys.NextKey();
+                Client = new FaceServiceClient(ApiKeys.GetCurrentKey(), Region);
+                Console.WriteLine("Now using API key {0}.", ApiKeys.GetCurrentKey());
+            });
+            await trainRetryPolicy.ExecuteAsync(async () => await TrainPersonGroup());
         }
 
         private async Task<Guid> AddPerson(string key)
@@ -217,6 +206,5 @@ namespace FaceTAN.Core.ApiHandler
                 }
             }
         }
-
     }
 }
