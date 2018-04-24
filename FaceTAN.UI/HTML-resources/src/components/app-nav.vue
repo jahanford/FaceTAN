@@ -5,7 +5,7 @@
             Project<span class="bold">FaceTAN</span>
         </div>
         <ul class="">
-            <router-link class="nav-item" to="dataset-manager" tag="li">
+            <router-link class="nav-item" to="dsm" tag="li">
                 <span>DataSet Manager</span>
             </router-link>
             <router-link class="nav-item" to="amazon" tag="li">
@@ -36,16 +36,47 @@ export default class AppNav extends Vue{
 </script>
 
 <style lang="scss">
+
+/********************************
+BREAKPOINT MIXINS
+********************************/
+
+//Map of breakpoints
+$breakpoints: (
+  tablet: 64rem,
+  laptop: 70rem,
+  tv: 80rem
+);
+
+@mixin break($size) {
+    @media (max-width: map-get($breakpoints, $size)) { @content ; }
+}
+
+@mixin breakh($size){
+  @media (max-height: map-get($breakpoints, $size)) { @content ; }
+}
+
+
+@mixin orientation($or) {
+    @media (orientation: $or) { @content ; }
+}
+
     nav{
         display: inline-block;
         float: left;
         position: fixed;
-        width:  25%;
-        min-width: 300px;
-        max-width: 400px;
         min-height:  100vh;
         background-color:  #eeedee;
         overflow: hidden;
+        width: 20%;
+
+        @include break(laptop){
+            width: 25%;
+        }
+
+        @include break(tablet) {
+            width: 30%;
+        }
 
         .logo{
             display: block;

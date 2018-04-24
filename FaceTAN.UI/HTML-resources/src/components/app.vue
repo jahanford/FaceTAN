@@ -10,14 +10,51 @@
 </template>
 
 <script lang="ts">
+import Vue from 'vue'
+import Component from "vue-class-component"
 import AppNav from './app-nav.vue';
 
-export default {
+
+const AppProps = Vue.extend({
+
+})
+
+@Component({
+    name: 'app',
     components: { AppNav }
+})
+
+export default class App extends AppProps {
+
 }
 </script>
 
 <style lang="scss">
+
+/********************************
+BREAKPOINT MIXINS
+********************************/
+
+//Map of breakpoints
+$breakpoints: (
+  tablet: 64rem,
+  laptop: 70rem,
+  tv: 80rem
+);
+
+@mixin break($size) {
+    @media (max-width: map-get($breakpoints, $size)) { @content ; }
+}
+
+@mixin breakh($size){
+  @media (max-height: map-get($breakpoints, $size)) { @content ; }
+}
+
+
+@mixin orientation($or) {
+    @media (orientation: $or) { @content ; }
+}
+
 html {
   min-height: 100%;
 }
@@ -30,15 +67,22 @@ body {
     min-width: 100%;
 
     .app-content{
-        display: inline-block;
-        float: left;
-        margin-left: 40%;
-
+        
         font-family: 'Segoe UI';
         font-size: 2em;
         letter-spacing: 1px;
         font-weight: 200;  
-        padding-top: 50px;
+        margin-top: 5%;
+
+        margin-left: 25%;
+
+        @include break(laptop){
+            margin-left: 30%;
+        }
+
+        @include break(tablet) {
+            margin-left: 35%;
+        }
     }
 
     img{

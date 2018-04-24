@@ -1,7 +1,8 @@
 
 /* Vue */
-import Vue from "vue";
+import Vue from 'vue';
 import router from './router';
+import store from './store/store';
 
 /* Sass Import */
 //import './';
@@ -9,9 +10,9 @@ import router from './router';
 /* App component */
 import App from "./components/app.vue";
 
-const app = new Vue({
+new Vue({
     el: '#app',
-    router,
+    router, store,
 
     render: h => h(App)
 });

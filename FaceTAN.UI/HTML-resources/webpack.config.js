@@ -44,7 +44,9 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js', '.vue', '.json'],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js'
+      'vue$': 'vue/dist/vue.esm.js',
+      'vuex$': 'vuex/dist/vuex.esm.js',
+      'vue-class-component$': 'vue-class-component/dist/vue-class-component.common.js'
     }
   },
   devServer: {

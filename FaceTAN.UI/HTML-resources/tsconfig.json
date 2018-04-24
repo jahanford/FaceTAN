@@ -2,11 +2,16 @@
     "compilerOptions": {
         "outDir": "./built/",
         "sourceMap": true,
-        "strict": true,
-        "noImplicitReturns": true,
         "module": "es2015",
         "moduleResolution": "node",
-        "target": "es5"
+        "experimentalDecorators": true,
+        "target": "es5",
+        "baseUrl": ".",
+        "paths":{
+            "@router/*": ["./src/router/*"],
+            "@models/*": ["./src/models/*"],
+            "@components/*": ["./src/components/*"]
+        }
     },
     "include": [
         "./src/**/*"

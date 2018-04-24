@@ -1,0 +1,91 @@
+<template>
+    <ul>
+        <li v-for="subset in this.$store.state.subsets">
+            <div class="DS-Thumb">DS</div>
+            <span>{{subset.name}}</span>
+            <span>{{subset.guid}}</span>
+        </li>
+
+        <li>
+            <div class="DS-Add">+</div>
+            <span>New Subset</span>
+        </li>
+    </ul>
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from "vue-class-component"
+import * as T from "../../models/models";
+
+@Component({
+    name: "dsmList", 
+})
+
+export default class dsmList extends Vue {
+
+}
+</script>
+
+<style lang="scss">
+ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-top: 3%;
+
+    li{
+        padding: 1.5rem;
+        width: 16.66666667%;
+        float: left;
+
+        .DS-Thumb{
+            width: 15rem;
+            height: 15rem;
+            margin: 0 auto;
+            background-color: #FBFBFB;
+            border-bottom: 2px solid #EAEAEA;
+            line-height: 15rem;
+            text-align: center;
+            font-family: 'Segoe UI';
+            font-weight: 500;
+            color: #2B2F3E;
+            font-size: 300%;
+            cursor: pointer;
+        }
+
+        .DS-Thumb:hover{
+            background-color: #eeedee;
+            
+        }
+
+        .DS-Add{
+            width: 15rem;
+            height: 15rem;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 4px dashed #eeedee;
+            line-height: 15rem;
+            text-align: center;
+            font-family: 'Segoe UI';
+            font-weight: 500;
+            color: #2a3c4d;
+            font-size: 300%;
+            cursor: pointer;
+        }
+
+        span{
+            display: block;
+            width: 100%;
+
+            
+        }
+        span:nth-child(3) {
+            font-size: 60%;
+            color: #c3c3c3;
+        }
+    }
+}
+
+</style>
+    

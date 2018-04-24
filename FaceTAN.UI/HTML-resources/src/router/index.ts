@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import DataSetManagerComponent from '../components/dataset-manager.vue';
+import DataSetManagerComponent from '../components/dataset-manager/dsm-wrapper.vue';
 
 /* API Components */
 import AmazonComponent from '../components/amazon/index.vue';
@@ -14,7 +14,7 @@ Vue.use(VueRouter);
 
 declare function require(path: string, arg: any): any;
 
-const router = new VueRouter({
+const router: VueRouter = new VueRouter({
 
     routes: [
         {
