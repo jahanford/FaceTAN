@@ -15,16 +15,12 @@ import Component from "vue-class-component"
 import AppNav from './app-nav.vue';
 
 
-const AppProps = Vue.extend({
-
-})
-
 @Component({
     name: 'app',
     components: { AppNav }
 })
 
-export default class App extends AppProps {
+export default class App extends Vue {
 
 }
 </script>

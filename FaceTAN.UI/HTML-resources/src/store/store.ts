@@ -1,92 +1,98 @@
-import Vue from 'vue'
-import Vuex, { GetterTree } from 'vuex'
-import { MutationTree, ActionTree,  } from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex'
+import { GetterTree, MutationTree, ActionTree,  } from 'vuex'
 import * as T from '../models/models'
 
 Vue.use(Vuex)
 
-interface State {
+interface State {  
     
-    subsets: T.ImageList[];
+    dsmDataset: T.ImageList;
+    dsmSubsets: T.ImageList[];
+
+    dsmView: T.DsmView;
 }
 
 const getters: GetterTree<State, any> = {
     
-    
-    getSubsetByGuid: (State) => (id: String) => {
-    state.subsets.forEach( subset => {
-        if(subset.guid == id)return subset;
-    });
-    }    
-    
-
+    getDataset: (state, getters) => {
+        return state.dsmDataset;
+    },
+    getSubsets: (state, getters) => {
+        return state.dsmSubsets;
+    },
+    getView: (state, getters) => {
+        return state.dsmView;
+    }
 }
 
 const mutations: MutationTree<State> = {
-
-    addSubset (State, payload: T.ImageList) {
-        State.subsets.push(payload);
+    
+    reverse: (state) => state.dsmSubsets.reverse(),
+     
+    addSubset: (state, payload: T.ImageList) => {
+        state.dsmSubsets.push(payload);
     },
 
-    removeSubset (State, guid) {
-        state.subsets.forEach( (subset, index) => {
-            if(subset.guid === guid){
-                state.subsets.splice(index, 1);
+    removeSubset:  (State, guid) => {
+        state.dsmSubsets.forEach( (subset, index) => {
+            if(subset.guid == guid){
+                state.dsmSubsets.splice(index, 1);
             }
         });
+    },
+
+    updateView: (state, payload: T.DsmView) => {
+        state.dsmView = payload;
     }
 
 }
 
 const actions: ActionTree<State,any> = {
 
-    addSubset (State) {
-        State.state.subsets
-    }
 
+}
 
+function newGuid(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : ( r & 0x3 | 0x8 );
+        return v.toString(16);
+    });
 }
 
 const state: State = {
 
-    subsets: [
-        //
-        {   name: "Subset One", 
-            guid: "43b4290e-fddb-4d97-9b9f-6f961987d5fe", 
-            imageStore: [
-                    {   name: "Selected Image", 
-                        url: ""
-                    }
-            ]
-        },
-        //
-        {   name: "Subset Two", 
-            guid: "fed48f8b-7c8d-496f-b844-e383d970187a", 
-            imageStore: [
-                    {   name: "hi", 
-                        url: ""
-                    }
-            ]
-        },
-        //
-        {   name: "Another Subset", 
-            guid: "63f558dd-c3c3-47c9-a82e-e67d41aaa0a6", 
-            imageStore: [
-                    {   name: "hi", 
-                        url: ""
-                    }
-            ]
-        },
-        //
-        {   name: "Final Subset", 
-            guid: "0c7f3967-dae1-42f7-b1a0-a093b0a63a7a", 
-            imageStore: [
-                    {   name: "hi", 
-                        url: ""
-                    }
-            ]
-        },
-    ]
+    dsmDataset: {
+        guid: "123456789",
+        name: "Dataset",
+        imageStore: [
+            {
+                guid: newGuid(),
+                name: "james.jpg",
+                url: "dataset/james.jpg"
+            },
+            {
+                guid: newGuid(),
+                name: "ashton.jpg",
+                url: "dataset/ashton.jpg"
+            },
+            {
+                guid: newGuid(),
+                name: "jason.jpg",
+                url: "dataset/jason.jpg"
+            },
+            {
+                guid: newGuid(),
+                name: "vinura.jpg",
+                url: "dataset/vinura.jpg"
+            }
+        ],
+    },
+    dsmSubsets: [],
+    dsmView: {
+        edit: false,
+        guid: undefined
+    }
 }
 
 export default new Vuex.Store<State>({

@@ -1,9 +1,11 @@
 <template>
     <div>
-        <span >DataSet Manager</span>
+        <span>DataSet Manager</span>
+        <span v-if="this.$store.state.dsmView.edit" class="bold"> - Subset Edit</span>
+
         <transition name="component-fade" mode="out-in">
-            <component v-if="seen" v-bind:is="this.list"></component>
-            <component v-else v-bind:is="this.edit"></component>
+            <component v-if="this.$store.state.dsmView.edit" v-bind:is="this.edit"></component>
+            <component v-else v-bind:is="this.list"></component>
         </transition>
 
     </div>
@@ -17,19 +19,16 @@ import dsmList from './dsm-list.vue'
 import dsmEdit from './dsm-edit.vue'
 import * as T from "../../models/models";
 
-const AppProps = Vue.extend({
-  data: {
-  }
-})
+
 
 @Component({
     components: { 
         dsmList, 
         dsmEdit
-    },
+    }
 })
 
-export default class dsmWrapper extends AppProps {
+export default class dsmWrapper extends Vue {
     seen: boolean = true
 
     list = dsmList;
@@ -42,5 +41,7 @@ export default class dsmWrapper extends AppProps {
 </script>
 
 <style lang="scss">
-
+    .bold{
+        font-weight: 600;
+    }
 </style>

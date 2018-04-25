@@ -1,10 +1,18 @@
 <template>
-    <ul>
-        <li v-for="subset in store.getters.getSubsetByGuid("123")">
-            <span>{{subset.name}}</span>
-            <span>{{subset.guid}}</span>
-        </li>
-    </ul>
+    <div>
+
+        <!-- Temp Spot Will Move To Fixed Bar Below -->
+        <input :value="getSubset().name" @input="updateName">
+        <button v-on:click="exitEdit()">Exit</button>
+
+        <ul>
+            <li :id="image.guid" v-on:click="imageSelect(image.guid)" v-for="image in getDataSet().imageStore" :key="image.name">
+                <div class="Img-Thumb" v-bind:style="{ backgroundImage: 'url(' + image.url + ')' }"></div>
+                <span>{{image.name}}</span>
+            </li>
+        </ul>
+
+    </div>
 </template>
 
 <script lang="ts">
@@ -12,11 +20,88 @@ import Vue from 'vue'
 import Component from "vue-class-component"
 import * as T from "../../models/models";
 
-@Component({
-    name: "dsmEdit"  
-})
-
+@Component
 export default class dsmEdit extends Vue {
-    subset: T.ImageList = $store getSubsetByGuid
+    
+    mounted() {
+        console.log("Component Mounted");
+        let selectedCollection: T.ImageElement[] = this.getSubset().imageStore;
+
+        selectedCollection.forEach(image => document.getElementById(image.guid).classList.add('selected'))
+    }
+
+    imageSelect(guid: string) {
+
+        let selectedCollection: T.ImageElement[] = this.getSubset().imageStore;
+        let dataSet: T.ImageElement[] = this.getDataSet().imageStore;
+
+        if(selectedCollection.filter(image => image.guid === guid)[0]){
+            console.log("ALREADY SELECTED REMOVED");
+            document.getElementById(guid).classList.remove('selected');
+            selectedCollection.splice(dataSet.findIndex(image => image.guid === guid),1);
+        }else{
+            console.log("ADDED TO SUBSET");
+            document.getElementById(guid).classList.add('selected');
+            selectedCollection.push(dataSet.find(image => image.guid === guid));
+        }
+    }
+
+    getDataSet() {
+        return this.$store.getters.getDataset;
+    }
+
+    exitEdit() {
+        this.$store.commit('updateView', {edit: false, guid: undefined})
+    }
+
+    updateName(e){
+        this.getSubset().name = e.target.value;
+    }
+
+    getSubset() {
+        let currentView: T.DsmView = this.$store.getters.getView;
+        let subsetCollection: T.ImageList[] = this.$store.getters.getSubsets;
+
+        return subsetCollection.filter(subset => subset.guid === currentView.guid)[0];
+    }
+
 }
 </script>
+
+<style lang="scss" scoped>
+ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-top: 3%;
+
+    .selected{
+        background-color: red !important;
+    }
+    li{
+        float: left;
+        display: table;
+        padding: 1.5rem;
+        width: initial;
+
+        .Img-Thumb{
+            width: 10rem;
+            height: 10rem;
+            margin: 0 auto;
+            background-size: contain;
+        }
+
+        span{
+            display: block;
+            font-size: 60%;
+            text-align: center;   
+        }
+
+    }
+
+    li:hover{
+        background-color: #eeedee;
+    }
+}
+
+</style>

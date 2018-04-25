@@ -1,28 +1,50 @@
 <template>
     <ul>
-        <li v-for="subset in this.$store.state.subsets">
-            <div class="DS-Thumb">DS</div>
+        <li v-for="subset in getSubsets()" :key="subset.guid">
+            <div v-on:click="editSubset(subset.guid)" class="DS-Thumb">DS</div>
             <span>{{subset.name}}</span>
             <span>{{subset.guid}}</span>
         </li>
 
-        <li>
+        <li v-on:click="newSubset()">
             <div class="DS-Add">+</div>
             <span>New Subset</span>
         </li>
+
+        <button v-on:click="$store.commit('reverse')">Reverse</button>
+        
     </ul>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import Vuex from 'vuex'
 import Component from "vue-class-component"
 import * as T from "../../models/models";
 
-@Component({
-    name: "dsmList", 
-})
-
+@Component
 export default class dsmList extends Vue {
+
+    newGuid(): string {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0, v = c === 'x' ? r : ( r & 0x3 | 0x8 );
+            return v.toString(16);
+        });
+    }
+
+    getSubsets() {
+        return this.$store.getters.getSubsets;
+    }
+    newSubset() {
+        let generatedGuid = this.newGuid();
+
+        this.$store.commit('addSubset', {guid: generatedGuid , name: "New Subset", imageStore: []});
+        this.editSubset(generatedGuid);
+    }
+
+    editSubset(guid: string) {
+        this.$store.commit('updateView', {edit: true, guid: guid});
+    }
 
 }
 </script>
@@ -38,6 +60,7 @@ ul{
         padding: 1.5rem;
         width: 16.66666667%;
         float: left;
+        display: table;
 
         .DS-Thumb{
             width: 15rem;

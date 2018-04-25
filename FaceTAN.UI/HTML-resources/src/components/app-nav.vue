@@ -62,7 +62,6 @@ $breakpoints: (
 }
 
     nav{
-        display: inline-block;
         float: left;
         position: fixed;
         min-height:  100vh;

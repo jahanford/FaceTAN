@@ -1,11 +1,17 @@
 
 export interface ImageElement {
-    name:String,
-    url:String
+    guid: string;
+    name: string;
+    url: string;
 }
 
 export interface ImageList {
-    guid: String;
-    name: String;
+    guid: string;
+    name: string;
     imageStore?: ImageElement[];
-    }
+}
+
+export interface DsmView {
+    edit: boolean;
+    guid: string;
+}
