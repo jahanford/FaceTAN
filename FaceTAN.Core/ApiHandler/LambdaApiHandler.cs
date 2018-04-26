@@ -1,8 +1,10 @@
 ﻿using FaceTAN.Core.Data;
 using FaceTAN.Core.Data.Models.Lambda;
+using FaceTAN.Core.Data.Models.Timing;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using unirest_net.http;
@@ -17,6 +19,7 @@ namespace FaceTAN.Core.ApiHandler
             ApiKeys = apiKeys;
             BaseUrl = baseUrl;
             DataSet = dataSet;
+            TimingResults = new List<TimingModel>();
         }
 
         private ApiKeyStore ApiKeys { get; set; }
@@ -35,12 +38,13 @@ namespace FaceTAN.Core.ApiHandler
 
         private List<LambdaRecognizeResponse> RecognizeResponses { get; set; }
 
+        private List<TimingModel> TimingResults { get; set; }
+
         public override async Task RunApi()
         {
             AlbumResponse = CreateAlbum();
 
             AlbumName = AlbumResponse.album;
-
             TrainResponses = TrainAlbum(AlbumResponse.albumkey);
             RebuildResponse = RebuildAlbum(AlbumResponse.albumkey);
             RecognizeResponses = RecognizePhotos(AlbumResponse.albumkey);
@@ -65,6 +69,11 @@ namespace FaceTAN.Core.ApiHandler
             {
                 serializer.Serialize(file, RecognizeResponses);
                 Console.WriteLine("Wrote lambda recognize data to {0}.", outputDirectory + "\\Lambda\\Lambda_Recognize_Photos.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Lambda\\Lambda_Timing_Results.txt"))
+            {
+                serializer.Serialize(file, TimingResults);
+                Console.WriteLine("Wrote lambda timing results to {0}.", outputDirectory + "\\Lambda\\Lambda_Timing_Results.txt");
             }
         }
 
@@ -135,6 +144,8 @@ namespace FaceTAN.Core.ApiHandler
                 DataSet.GetImage(entry.Key).Save(imageStream, System.Drawing.Imaging.ImageFormat.Jpeg);
                 byte[] data = imageStream.ToArray();
 
+                var watch = Stopwatch.StartNew();
+
                 string responseJson = Unirest.post(BaseUrl + "recognize")
                     .header("X-Mashape-Key", ApiKeys.GetCurrentKey())
                     .header("Accept", "application/json")
@@ -142,6 +153,9 @@ namespace FaceTAN.Core.ApiHandler
                     .field("albumkey", albumId)
                     .field("files", data)
                     .asString().Body;
+
+                watch.Stop();
+                TimingResults.Add(new TimingModel("RecognizePhotos", entry.Key, watch.ElapsedMilliseconds));
 
                 LambdaRecognizeResponse response = JsonConvert.DeserializeObject<LambdaRecognizeResponse>(responseJson);
 
@@ -152,15 +166,22 @@ namespace FaceTAN.Core.ApiHandler
                 else
                 {
                     result.Add(response);
-                    if (response.photos[0].tags[0].uids == null)
+                    try
                     {
-                        Console.WriteLine("Image {0} not recognized.", entry.Key);
-                    }
-                    else
+
+                        if (response.photos[0].tags[0].uids == null)
+                        {
+                            Console.WriteLine("Image {0} not recognized.", entry.Key);
+                        }
+                        else
+                        {
+                            string prediction = response.photos[0].tags[0].uids[0].prediction;
+                            double confidence = response.photos[0].tags[0].uids[0].confidence;
+                            Console.WriteLine("Image {0} recognized as {1} with {2} confidence.", entry.Key, prediction, confidence);
+                        }
+                    } catch (Exception e)
                     {
-                        string prediction = response.photos[0].tags[0].uids[0].prediction;
-                        double confidence = response.photos[0].tags[0].uids[0].confidence;
-                        Console.WriteLine("Image {0} recognized as {1} with {2} confidence.", entry.Key, prediction, confidence);
+                        Console.WriteLine("Encountered some weird exception");
                     }
                 }
             }

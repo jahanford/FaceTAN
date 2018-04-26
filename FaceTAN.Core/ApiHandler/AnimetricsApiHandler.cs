@@ -7,6 +7,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Polly;
 using unirest_net.http;
+using System.Diagnostics;
+using FaceTAN.Core.Data.Models.Timing;
 
 namespace FaceTAN.Core.ApiHandler
 {
@@ -19,6 +21,7 @@ namespace FaceTAN.Core.ApiHandler
             BaseUrl = baseUrl;
             GalleryId = galleryId;
             DataSet = dataSet;
+            TimingResults = new List<TimingModel>();
         }
 
         private ApiKeyStore ApiKeys { get; }
@@ -36,6 +39,8 @@ namespace FaceTAN.Core.ApiHandler
         private List<AnimetricsEnrollResponse> EnrolledFaces { get; set; }
 
         private List<AnimetricsRecognizeResponse> RecognizedFaces { get; set; }
+
+        private List<TimingModel> TimingResults { get; set; }
 
         public override async Task RunApi()
         {
@@ -80,8 +85,13 @@ namespace FaceTAN.Core.ApiHandler
             }
             using (StreamWriter file = File.CreateText(outputDirectory + "\\Animetrics\\Animetrics_Recognized_Faces.txt"))
             {
-                serializer.Serialize(file, EnrolledFaces);
+                serializer.Serialize(file, RecognizedFaces);
                 Console.WriteLine("Wrote animetrics recognized face data to {0}.", outputDirectory + "\\Animetrics\\Animetrics_Recognized_Faces.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Animetrics\\Animetrics_Timing_Results.txt"))
+            {
+                serializer.Serialize(file, TimingResults);
+                Console.WriteLine("Wrote timing results to {0}.", outputDirectory + "\\Animetrics\\Animetrics_Timing_Results.txt");
             }
         }
 
@@ -182,6 +192,8 @@ namespace FaceTAN.Core.ApiHandler
 
         private AnimetricsRecognizeResponse RecognizeFace(KeyValuePair<string, AnimetricsDetectResponse> entry)
         {
+            var watch = Stopwatch.StartNew();
+
             HttpResponse<string> response = Unirest.post(BaseUrl + "detect")
                     .header("Accept", "application/json")
                     .field("api_key", ApiKeys.GetCurrentKey())
@@ -193,6 +205,9 @@ namespace FaceTAN.Core.ApiHandler
                     .field("width", entry.Value.images[0].width)
                     .field("height", entry.Value.images[0].height)
                     .asString();
+
+            watch.Stop();
+            TimingResults.Add(new TimingModel("RecognizeFace", entry.Key, watch.ElapsedMilliseconds));
 
             return JsonConvert.DeserializeObject<AnimetricsRecognizeResponse>(response.Body);
         }

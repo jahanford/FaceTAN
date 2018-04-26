@@ -23,8 +23,8 @@ namespace FaceTAN.Core
             // Setup API key stores
             ApiKeyStore amazonAccessKeys = new ApiKeyStore(new[] { "AKIAJJKYA2TLOIPHNNVA" });
             ApiKeyStore amazonPrivateKeys = new ApiKeyStore(new[] { "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A" });
-            ApiKeyStore azureKeys = new ApiKeyStore(new[] { "3ab30cd064c04013bd868bf7d7c8a2f4" });
-            ApiKeyStore animetricsKeys = new ApiKeyStore(new[] { "bb94491f82ca57cb695b63812c7b12af" });
+            ApiKeyStore azureKeys = new ApiKeyStore(new[] { "d6ba90bf1de54bf4a050c46eb1f73ab4" });
+            ApiKeyStore animetricsKeys = new ApiKeyStore(new[] { "UINlGk5i5lmsha6RTFLEbd1XL65Ap1Y5kq2jsnuaYrGkAyQcCg" });
             ApiKeyStore lambdaKeys = new ApiKeyStore(new[] { "UINlGk5i5lmsha6RTFLEbd1XL65Ap1Y5kq2jsnuaYrGkAyQcCg" });
 
             // Setup DataSet
@@ -36,9 +36,9 @@ namespace FaceTAN.Core
 
             //Setup the various APIs
             List<BaseApiHandler> apiList = new List<BaseApiHandler>();
-            apiList.Add(new AmazonApiHandler(amazonAccessKeys, amazonPrivateKeys, dataSet, "testcollection"));
-            apiList.Add(new AzureApiHandler(azureKeys, "https://westcentralus.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
-            apiList.Add(new AnimetricsApiHandler(animetricsKeys, "http://23.21.173.192/v2/", "test_gallery", dataSet));
+            //apiList.Add(new AmazonApiHandler(amazonAccessKeys, amazonPrivateKeys, dataSet, "testcollection"));
+            //apiList.Add(new AzureApiHandler(azureKeys, "https://australiaeast.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
+            //apiList.Add(new AnimetricsApiHandler(animetricsKeys, "https://animetrics.p.mashape.com/", "test_gallery", dataSet));
             apiList.Add(new LambdaApiHandler(lambdaKeys, "https://lambda-face-recognition.p.mashape.com/", dataSet));
 
             subSets.ForEach((subset) =>
@@ -50,7 +50,7 @@ namespace FaceTAN.Core
                     Task apiRun = api.RunApi();
                     apiRun.Wait();
                     Console.WriteLine("API {0} Complete. Exporting results...", api.ApiName);
-                    api.ExportResults("D:\\Api Output");
+                    api.ExportResults("D:\\Api Output\\" + DateTime.Now.Date.ToShortDateString() + "-" + dataSetSize);
                     Console.WriteLine("Export Complete.", api.ApiName);
                 });
             });
