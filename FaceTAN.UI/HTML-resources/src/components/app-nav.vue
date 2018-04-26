@@ -5,7 +5,7 @@
             Project<span class="bold">FaceTAN</span>
         </div>
         <ul class="">
-            <router-link class="nav-item" to="dsm" tag="li">
+            <router-link class="nav-item" to="dataset-manager" tag="li">
                 <span>DataSet Manager</span>
             </router-link>
             <router-link class="nav-item" to="amazon" tag="li">

@@ -2,8 +2,10 @@
     <div>
 
         <!-- Temp Spot Will Move To Fixed Bar Below -->
-        <input :value="getSubset().name" @input="updateName">
-        <button v-on:click="exitEdit()">Exit</button>
+        <div class="Bottom-Bar">
+            <input :value="getSubset().name" @input="updateName">
+            <button v-on:click="exitEdit()">Exit</button>
+        </div>
 
         <ul>
             <li :id="image.guid" v-on:click="imageSelect(image.guid)" v-for="image in getDataSet().imageStore" :key="image.name">
@@ -73,6 +75,15 @@ export default class dsmEdit extends Vue {
 </script>
 
 <style lang="scss" scoped>
+
+.Bottom-Bar{
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    margin-left: -5%;
+    background-color: #2a3c4d;
+}
 ul{
     list-style: none;
     margin: 0;

@@ -8,10 +8,8 @@
 
         <li v-on:click="newSubset()">
             <div class="DS-Add">+</div>
-            <span>New Subset</span>
+            <span>Create Subset</span>
         </li>
-
-        <button v-on:click="$store.commit('reverse')">Reverse</button>
         
     </ul>
 </template>
@@ -49,7 +47,7 @@ export default class dsmList extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 ul{
     list-style: none;
     margin: 0;
@@ -66,8 +64,11 @@ ul{
             width: 15rem;
             height: 15rem;
             margin: 0 auto;
+
             background-color: #FBFBFB;
-            border-bottom: 2px solid #EAEAEA;
+            box-shadow: 0px 3px 5px #eaeaea;
+            border: 4px solid #FBFBFB;
+
             line-height: 15rem;
             text-align: center;
             font-family: 'Segoe UI';
@@ -79,6 +80,9 @@ ul{
 
         .DS-Thumb:hover{
             background-color: #eeedee;
+
+            box-shadow: 0px 3px 5px #c3c3c3;
+            border: 4px solid #eeefee;
             
         }
 
@@ -97,12 +101,21 @@ ul{
             cursor: pointer;
         }
 
+        .DS-Add:hover{
+            border-color: #2B2F3E;
+            background-color: #2B2F3E;
+            color: #fff;
+        }
+
         span{
             display: block;
-            width: 100%;
-
-            
+            width: 15rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-top: 5px;       
         }
+
         span:nth-child(3) {
             font-size: 60%;
             color: #c3c3c3;
