@@ -36,11 +36,15 @@ export default class dsmEdit extends Vue {
         let dataSet: T.ImageElement[] = this.getDataSet().imageStore;
 
         if(selectedCollection.filter(image => image.guid === guid)[0]){
-            console.log("ALREADY SELECTED REMOVED");
+            //Debug
+            console.log("ALREADY SELECTED REMOVING " + guid);
+
             document.getElementById(guid).classList.remove('selected');
-            selectedCollection.splice(dataSet.findIndex(image => image.guid === guid),1);
+            selectedCollection.splice(selectedCollection.findIndex(image => image.guid === guid), 1);
         }else{
-            console.log("ADDED TO SUBSET");
+            //Debug
+            console.log("ADDED TO SUBSET " + guid);
+
             document.getElementById(guid).classList.add('selected');
             selectedCollection.push(dataSet.find(image => image.guid === guid));
         }
