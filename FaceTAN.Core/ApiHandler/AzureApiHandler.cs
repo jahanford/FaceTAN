@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
 using Polly;
+using FaceTAN.Core.Data.Models.Timing;
+using System.Diagnostics;
 
 namespace FaceTAN.Core.ApiHandler
 {
@@ -25,6 +27,7 @@ namespace FaceTAN.Core.ApiHandler
             TargetFaceList = new List<Face>();
             SourceFaceList = new List<Face>();
             SourceMatchList = new List<IdentifyResult>();
+            TimingResults = new List<TimingModel>();
         }
 
         private ApiKeyStore ApiKeys;
@@ -43,6 +46,7 @@ namespace FaceTAN.Core.ApiHandler
 
         private List<IdentifyResult> SourceMatchList { get; set; }
 
+        private List<TimingModel> TimingResults { get; set; }
 
         public override async Task RunApi()
         {
@@ -71,6 +75,11 @@ namespace FaceTAN.Core.ApiHandler
                 serializer.Serialize(file, SourceMatchList);
                 Console.WriteLine("Wrote azure face match data to {0}.", outputDirectory + "\\Azure\\Azure_Match_Data.txt");
             }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Timing_Results.txt"))
+            {
+                serializer.Serialize(file, TimingResults);
+                Console.WriteLine("Wrote azure timing results to {0}.", outputDirectory + "\\Azure\\Azure_Timing_Results.txt");
+            }
         }
 
         private async Task InitApiAsync()
@@ -95,8 +104,8 @@ namespace FaceTAN.Core.ApiHandler
         {
             Guid personId = new Guid();
             Face personFace = null;
-
-            var addRetryPolicy = Policy.Handle<FaceAPIException>().Retry(3, (exception, retryCount) =>
+            
+            var addRetryPolicy = Policy.Handle<FaceAPIException>().WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(16), (ex, timeSpan) =>
             {
                 Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
                 ApiKeys.NextKey();
@@ -112,7 +121,7 @@ namespace FaceTAN.Core.ApiHandler
                 return;
             }
 
-            var findRetryPolicy = Policy.Handle<FaceAPIException>().Retry(3, (exception, retryCount) =>
+            var findRetryPolicy = Policy.Handle<FaceAPIException>().WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(16), (ex, timeSpan) =>
             {
                 Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
                 ApiKeys.NextKey();
@@ -127,7 +136,7 @@ namespace FaceTAN.Core.ApiHandler
                 return;
             }
 
-            var addFaceRetryPolicy = Policy.Handle<FaceAPIException>().Retry(3, (exception, retryCount) =>
+            var addFaceRetryPolicy = Policy.Handle<FaceAPIException>().WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(16), (ex, timeSpan) =>
             {
                 Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
                 ApiKeys.NextKey();
@@ -137,7 +146,7 @@ namespace FaceTAN.Core.ApiHandler
             await addFaceRetryPolicy.ExecuteAsync(async () => await AddFaceToPerson(entry.Key, personId, personFace));
 
 
-            var trainRetryPolicy = Policy.Handle<FaceAPIException>().Retry(3, (exception, retryCount) =>
+            var trainRetryPolicy = Policy.Handle<FaceAPIException>().WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(16), (ex, timeSpan) =>
             {
                 Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
                 ApiKeys.NextKey();
@@ -150,7 +159,10 @@ namespace FaceTAN.Core.ApiHandler
         private async Task<Guid> AddPerson(string key)
         {
             Console.WriteLine("Attempting to creating person: {0}.", key);
+            var watch = Stopwatch.StartNew();
             CreatePersonResult person = await Client.CreatePersonAsync(PersonGroupId, key);
+            watch.Stop();
+            TimingResults.Add(new TimingModel("AddPerson", key, watch.ElapsedMilliseconds));
             return person.PersonId;
         }
 
@@ -172,37 +184,58 @@ namespace FaceTAN.Core.ApiHandler
         private async Task AddFaceToPerson(string key, Guid personId, Face personFace)
         {
             Console.WriteLine("Adding face to person {0}.", key);
+            var watch = Stopwatch.StartNew();
             await Client.AddPersonFaceAsync(PersonGroupId, personId, DataSet.GetImageStream(key), null, personFace.FaceRectangle);
+            watch.Stop();
+            TimingResults.Add(new TimingModel("AddFaceToPerson", key, watch.ElapsedMilliseconds));
         }
 
         private async Task TrainPersonGroup()
         {
             Console.WriteLine("Training PersonGroup {0} after adding new face.", PersonGroupId);
+            var watch = Stopwatch.StartNew();
             await Client.TrainPersonGroupAsync(PersonGroupId);
+            watch.Stop();
+            TimingResults.Add(new TimingModel("TrainPersonGroup", "", watch.ElapsedMilliseconds));
         }
 
         private async Task MatchSourceFaces()
         {
             foreach(var entry in DataSet.SourceImages)
             {
-                Console.WriteLine("Attempting to match face of person {0}.", entry.Key);
-
-                Face[] faces = await Client.DetectAsync(DataSet.GetImageStream(entry.Key));
-                Guid[] faceIds = faces.Select(face => face.FaceId).ToArray();
-                IdentifyResult[] results = await Client.IdentifyAsync(PersonGroupId, faceIds);
-
-                SourceFaceList.AddRange(faces);
-                SourceMatchList.AddRange(results);
-
-                foreach (var identifyResult in results)
+                var matchRetryPolicy = Policy.Handle<FaceAPIException>().WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(16), (ex, timeSpan) =>
                 {
-                    if (identifyResult.Candidates.Length == 0)
-                        Console.WriteLine("Unable to find match.");
-                    else
-                    {
-                        var candidateId = identifyResult.Candidates[0].PersonId;
-                        Console.WriteLine("Face identified as {0}", entry.Key);
-                    }
+                    Console.WriteLine("API key {0} failed. Changing key.", ApiKeys.GetCurrentKey());
+                    ApiKeys.NextKey();
+                    Client = new FaceServiceClient(ApiKeys.GetCurrentKey(), Region);
+                    Console.WriteLine("Now using API key {0}.", ApiKeys.GetCurrentKey());
+                });
+                await matchRetryPolicy.ExecuteAsync(async () => await MatchSourceFace(entry));
+            }
+        }
+
+        private async Task MatchSourceFace(KeyValuePair<string, Image> entry)
+        {
+            Console.WriteLine("Attempting to match face of person {0}.", entry.Key);
+
+            var watch = Stopwatch.StartNew();
+            Face[] faces = await Client.DetectAsync(DataSet.GetImageStream(entry.Key));
+            Guid[] faceIds = faces.Select(face => face.FaceId).ToArray();
+            IdentifyResult[] results = await Client.IdentifyAsync(PersonGroupId, faceIds);
+            watch.Stop();
+            TimingResults.Add(new TimingModel("Identify Source Face", entry.Key, watch.ElapsedMilliseconds));
+
+            SourceFaceList.AddRange(faces);
+            SourceMatchList.AddRange(results);
+
+            foreach (var identifyResult in results)
+            {
+                if (identifyResult.Candidates.Length == 0)
+                    Console.WriteLine("Unable to find match.");
+                else
+                {
+                    var candidateId = identifyResult.Candidates[0].PersonId;
+                    Console.WriteLine("Face identified as {0}", entry.Key);
                 }
             }
         }

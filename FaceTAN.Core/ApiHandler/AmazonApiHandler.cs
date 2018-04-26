@@ -1,9 +1,11 @@
 ﻿using Amazon.Runtime;
 using Amazon.Rekognition;
 using Amazon.Rekognition.Model;
+using FaceTAN.Core.Data.Models.Timing;
 using System.IO;
 using System.Collections.Generic;
 using System;
+using System.Diagnostics;
 using FaceTAN.Core.Data;
 using System.Threading.Tasks;
 using Amazon;
@@ -24,6 +26,7 @@ namespace FaceTAN.Core.ApiHandler
             DataSet = dataSet;
             IndexedFaces = new List<IndexFacesResponse>();
             MatchResults = new List<SearchFacesByImageResponse>();
+            TimingResults = new List<TimingModel>();
         }
 
         private AWSCredentials Credentials { get; }
@@ -41,6 +44,8 @@ namespace FaceTAN.Core.ApiHandler
         private List<IndexFacesResponse> IndexedFaces { get; set; }
 
         private List<SearchFacesByImageResponse> MatchResults { get; set; }
+
+        private List<TimingModel> TimingResults { get; set; }
 
         public override async Task RunApi()
         {
@@ -66,6 +71,11 @@ namespace FaceTAN.Core.ApiHandler
             {
                 serializer.Serialize(file, MatchResults);
                 Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt");
+            }
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Timing_Results.txt"))
+            {
+                serializer.Serialize(file, TimingResults);
+                Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Timing_Results.txt");
             }
         }
 
@@ -123,7 +133,10 @@ namespace FaceTAN.Core.ApiHandler
                     CollectionId = CollectionName
                 };
 
+                var watch = Stopwatch.StartNew();
                 IndexFacesResponse response = Client.IndexFaces(request);
+                watch.Stop();
+                TimingResults.Add(new TimingModel("PopulateCollection", entry.Key, watch.ElapsedMilliseconds));
                 IndexedFaces.Add(response);
                 result.AddRange(response.FaceRecords);
             }
@@ -154,7 +167,10 @@ namespace FaceTAN.Core.ApiHandler
                     CollectionId = CollectionName
                 };
 
+                var watch = Stopwatch.StartNew();
                 SearchFacesByImageResponse response = Client.SearchFacesByImage(request);
+                watch.Stop();
+                TimingResults.Add(new TimingModel("SearchCollectionForSourceImageFaces", entry.Key, watch.ElapsedMilliseconds));
                 MatchResults.Add(response);
 
                 if (response.FaceMatches.Count > 0)
