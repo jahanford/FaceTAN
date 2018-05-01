@@ -38,8 +38,8 @@ namespace FaceTAN.Core
             List<BaseApiHandler> apiList = new List<BaseApiHandler>();
             //apiList.Add(new AmazonApiHandler(amazonAccessKeys, amazonPrivateKeys, dataSet, "testcollection"));
             //apiList.Add(new AzureApiHandler(azureKeys, "https://australiaeast.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
-            //apiList.Add(new AnimetricsApiHandler(animetricsKeys, "https://animetrics.p.mashape.com/", "test_gallery", dataSet));
-            apiList.Add(new LambdaApiHandler(lambdaKeys, "https://lambda-face-recognition.p.mashape.com/", dataSet));
+            apiList.Add(new AnimetricsApiHandler(animetricsKeys, "https://animetrics.p.mashape.com/", "test_gallery", dataSet));
+            //apiList.Add(new LambdaApiHandler(lambdaKeys, "https://lambda-face-recognition.p.mashape.com/", dataSet));
 
             subSets.ForEach((subset) =>
             {

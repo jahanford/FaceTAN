@@ -109,13 +109,16 @@ namespace FaceTAN.Core.ApiHandler
                 });
 
                 AnimetricsDetectResponse response = retryPolicy.Execute(() => DetectFace(imageStream));
-
-                if (response.images[0].faces.Count > 0 && response != null)
+                
+                try
                 {
-                    Console.WriteLine("Face found in image {0}.", entry.Key);
-                    result.Add(entry.Key, response);
+                    if (response.images[0].faces.Count > 0)
+                    {
+                        Console.WriteLine("Face found in image {0}.", entry.Key);
+                        result.Add(entry.Key, response);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
                     Console.WriteLine("No faces found in image {0}.", entry.Key);
                 }
@@ -148,8 +151,11 @@ namespace FaceTAN.Core.ApiHandler
                 });
 
                 AnimetricsEnrollResponse response = retryPolicy.Execute(() => EnrollFace(entry));
-                Console.WriteLine("Image {0} enrolled.", entry.Key);
-                result.Add(response);
+                if (response != null)
+                {
+                    result.Add(response);
+                    Console.WriteLine("Image {0} enrolled.", entry.Key);
+                }
             }
             return result;
         }
@@ -183,9 +189,13 @@ namespace FaceTAN.Core.ApiHandler
                 });
 
                 AnimetricsRecognizeResponse response = retryPolicy.Execute(() => RecognizeFace(entry));
+                
 
-                Console.WriteLine("Face recognized in source image {0}.", entry.Key);
-                result.Add(response);
+                if (response != null)
+                {
+                    result.Add(response);
+                    Console.WriteLine("Face recognized in source image {0}.", entry.Key);
+                }
             }
             return result;
         }
