@@ -28,6 +28,7 @@ namespace FaceTAN.Core.ApiHandler
             SourceFaceList = new List<Face>();
             SourceMatchList = new List<IdentifyResult>();
             TimingResults = new List<TimingModel>();
+            Attributes = new List<FaceAttributeType>() { FaceAttributeType.Emotion };
         }
 
         private ApiKeyStore ApiKeys;
@@ -39,6 +40,8 @@ namespace FaceTAN.Core.ApiHandler
         private string Region { get; }
 
         private string PersonGroupId { get; }
+
+        private List<FaceAttributeType> Attributes { get; set; }
 
         private List<Face> TargetFaceList { get; set; }
 
@@ -60,25 +63,25 @@ namespace FaceTAN.Core.ApiHandler
             Directory.CreateDirectory(outputDirectory + "\\Azure");
 
             JsonSerializer serializer = new JsonSerializer();
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Target_Face_Data.txt"))
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Target_Face_Data.json"))
             {
                 serializer.Serialize(file, TargetFaceList);
-                Console.WriteLine("Wrote azure target face data to {0}.", outputDirectory + "\\Azure\\Azure_Target_Face_Data.txt");
+                Console.WriteLine("Wrote azure target face data to {0}.", outputDirectory + "\\Azure\\Azure_Target_Face_Data.json");
             }
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Source_Face_Data.txt"))
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Source_Face_Data.json"))
             {
                 serializer.Serialize(file, SourceFaceList);
-                Console.WriteLine("Wrote azure source face data to {0}.", outputDirectory + "\\Azure\\Azure_Source_Face_Data.txt");
+                Console.WriteLine("Wrote azure source face data to {0}.", outputDirectory + "\\Azure\\Azure_Source_Face_Data.json");
             }
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Match_Data.txt"))
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Match_Data.json"))
             {
                 serializer.Serialize(file, SourceMatchList);
-                Console.WriteLine("Wrote azure face match data to {0}.", outputDirectory + "\\Azure\\Azure_Match_Data.txt");
+                Console.WriteLine("Wrote azure face match data to {0}.", outputDirectory + "\\Azure\\Azure_Match_Data.json");
             }
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Timing_Results.txt"))
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Azure\\Azure_Timing_Results.json"))
             {
                 serializer.Serialize(file, TimingResults);
-                Console.WriteLine("Wrote azure timing results to {0}.", outputDirectory + "\\Azure\\Azure_Timing_Results.txt");
+                Console.WriteLine("Wrote azure timing results to {0}.", outputDirectory + "\\Azure\\Azure_Timing_Results.json");
             }
         }
 
@@ -169,7 +172,7 @@ namespace FaceTAN.Core.ApiHandler
         private async Task<Face> FindFace(string key)
         {
             Console.WriteLine("Attempting to locate face in image.");
-            Face[] faces = await Client.DetectAsync(DataSet.GetImageStream(key));
+            Face[] faces = await Client.DetectAsync(DataSet.GetImageStream(key), true, true, Attributes);
 
 
             if (faces.Length == 0)

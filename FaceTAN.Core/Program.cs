@@ -12,11 +12,11 @@ namespace FaceTAN.Core
         static void Main(string[] args)
         {
             // Get desired data set size from the user
-            Console.Write("Enter the desired target data set size: ");
+            Console.Write("Enter the desired target data set size or text file name: ");
+            string fileName = Console.ReadLine();
             int dataSetSize;
-            if (int.TryParse(Console.ReadLine(), out dataSetSize) == false)
+            if (int.TryParse(fileName, out dataSetSize) == false)
             {
-                dataSetSize = 8;
                 Console.WriteLine("Unable to parse input. Using default data set size of {0}", dataSetSize.ToString());
             }
 
@@ -28,7 +28,7 @@ namespace FaceTAN.Core
             ApiKeyStore lambdaKeys = new ApiKeyStore(new[] { "UINlGk5i5lmsha6RTFLEbd1XL65Ap1Y5kq2jsnuaYrGkAyQcCg" });
 
             // Setup DataSet
-            DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSetSize);
+            DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSetSize, fileName);
 
             // Setup SubSets
             List<SubSet> subSets = new List<SubSet>();
@@ -36,9 +36,9 @@ namespace FaceTAN.Core
 
             //Setup the various APIs
             List<BaseApiHandler> apiList = new List<BaseApiHandler>();
-            //apiList.Add(new AmazonApiHandler(amazonAccessKeys, amazonPrivateKeys, dataSet, "testcollection"));
+            apiList.Add(new AmazonApiHandler(amazonAccessKeys, amazonPrivateKeys, dataSet, "testcollection"));
             //apiList.Add(new AzureApiHandler(azureKeys, "https://australiaeast.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
-            apiList.Add(new AnimetricsApiHandler(animetricsKeys, "https://animetrics.p.mashape.com/", "test_gallery", dataSet));
+            //apiList.Add(new AnimetricsApiHandler(animetricsKeys, "https://animetrics.p.mashape.com/", "test_gallery", dataSet));
             //apiList.Add(new LambdaApiHandler(lambdaKeys, "https://lambda-face-recognition.p.mashape.com/", dataSet));
 
             subSets.ForEach((subset) =>

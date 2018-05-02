@@ -62,20 +62,20 @@ namespace FaceTAN.Core.ApiHandler
             Directory.CreateDirectory(outputDirectory + "\\Rekognition");
 
             JsonSerializer serializer = new JsonSerializer();
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt"))
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.json"))
             {
                 serializer.Serialize(file, IndexedFaces);
-                Console.WriteLine("Wrote rekognition index face data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt");
+                Console.WriteLine("Wrote rekognition index face data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.json");
             }
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt"))
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Match_Results.json"))
             {
                 serializer.Serialize(file, MatchResults);
-                Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Match_Results.txt");
+                Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Match_Results.json");
             }
-            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Timing_Results.txt"))
+            using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Timing_Results.json"))
             {
                 serializer.Serialize(file, TimingResults);
-                Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Timing_Results.txt");
+                Console.WriteLine("Wrote rekognition face match data to {0}.", outputDirectory + "\\Rekognition\\Rekognition_Timing_Results.json");
             }
         }
 
@@ -130,7 +130,8 @@ namespace FaceTAN.Core.ApiHandler
                 IndexFacesRequest request = new IndexFacesRequest()
                 {
                     Image = requestImage,
-                    CollectionId = CollectionName
+                    CollectionId = CollectionName,
+                    DetectionAttributes = { "ALL" }
                 };
 
                 var watch = Stopwatch.StartNew();

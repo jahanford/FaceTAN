@@ -10,14 +10,14 @@ namespace FaceTAN.Core.Data
 {
     public class DataSet
     {
-        public DataSet(string bucketName, string accessKey, string secretKey, int maxTargets)
+        public DataSet(string bucketName, string accessKey, string secretKey, int maxTargets, string fileName)
         {
             BucketName = bucketName;
             Credentials = new BasicAWSCredentials(accessKey, secretKey);
             Client = new AmazonS3Client(Credentials, Amazon.RegionEndpoint.USEast1);
             TargetImages = new Dictionary<string, Image>();
             SourceImages = new Dictionary<string, Image>();
-            PopulateImages(maxTargets);
+            PopulateImages(maxTargets, fileName);
 
         }
 
@@ -36,32 +36,57 @@ namespace FaceTAN.Core.Data
         /*
          * Returns a list of all the images contained within the s3 bucket
          * */
-        public void PopulateImages(int maxImages)
+        public void PopulateImages(int maxImages, string fileName)
         {
             Console.WriteLine("Populating DataSet from S3 bucket...");
-            List<string> keyList = GetKeyList();
-
-            int count = 0;
-            foreach(string key in keyList)
+            List<string> keyList;
+            if (maxImages > 0)
             {
-                if (key.EndsWith("0001.jpg"))
+                keyList = GetKeyList();
+                int count = 0;
+                foreach (string key in keyList)
                 {
-                    TargetImages.Add(key, GetImage(key));
-                    Console.WriteLine("Image {0} retrieved.", key);
-
-                    string sourceKey = key.Substring(0, key.Length - 8) + "0002.jpg";
-                    if (keyList.Contains(sourceKey))
+                    if (key.EndsWith("0001.jpg"))
                     {
-                        Console.WriteLine("Source image found: {0}", sourceKey);
-                        SourceImages.Add(sourceKey, GetImage(sourceKey));
+                        TargetImages.Add(key, GetImage(key));
+                        Console.WriteLine("Image {0} retrieved.", key);
+
+                        string sourceKey = key.Substring(0, key.Length - 8) + "0002.jpg";
+                        if (keyList.Contains(sourceKey))
+                        {
+                            Console.WriteLine("Source image found: {0}", sourceKey);
+                            SourceImages.Add(sourceKey, GetImage(sourceKey));
+                        }
+
+                        count += 1;
+                        if (count >= maxImages)
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                StreamReader file = new StreamReader("D:\\Api Output\\" + fileName);
+                bool addingTargets = true;
+                string line;
+                file.ReadLine(); // skip TARGET IMAGES label
+                while ((line = file.ReadLine()) != null)
+                {
+                    if (line == "SOURCE IMAGES")
+                    {
+                        addingTargets = false;
+                        continue;
                     }
 
-                    count += 1;
-                    if (count >= maxImages)
-                        break;
-                }               
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        if (addingTargets)
+                            TargetImages.Add(line, GetImage(line));
+                        else
+                            SourceImages.Add(line, GetImage(line));
+                    }
+                }
             }
-
             Console.WriteLine("DataSet population complete. {0} target images retrieved. {1} source images retrieved.", TargetImages.Count, SourceImages.Count);
         }
 
