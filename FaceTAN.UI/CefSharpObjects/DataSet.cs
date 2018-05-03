@@ -9,7 +9,7 @@ using CefSharp;
 using CefSharp.WinForms;
 
 namespace FaceTAN.UI.CefSharpObjects
-{ 
+{
 
     public class DataSet
     {
@@ -39,6 +39,11 @@ namespace FaceTAN.UI.CefSharpObjects
         public Dictionary<string, Image> SourceImages { get; }
 
         private static Random Random = new Random();
+
+        public string Hello(string name)
+        {
+            return "Hello " + name;
+        }
 
         /*
          * Returns a list of all the images contained within the s3 bucket

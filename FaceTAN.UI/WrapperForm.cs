@@ -38,13 +38,10 @@ namespace FaceTAN.UI
             this.Controls.Add(chromium);
 
             var formHandler = new FormProvider(this);
-            //chromium.RegisterAsyncJsObject("WrapperFormAsync", new FormProvider(this));
 
-            //chromium.JavascriptObjectRepository.Register("cefAsync", new CefProvider(chromium, this), true);
-
-            chromium.RegisterAsyncJsObject("cefAsync", new CefProvider(chromium, this));
-            chromium.RegisterAsyncJsObject("cefDataSet", new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 10, chromium, this));
-
+            //Register DataSet Object to boundDataSet Javascript Object
+            chromium.JavascriptObjectRepository.Register("boundDataSet", new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 10, chromium, this), true);
+            
             IntializeEventHandlers();
         }
 
