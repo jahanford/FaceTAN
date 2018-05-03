@@ -2,15 +2,9 @@
 using CefSharp.WinForms;
 using FaceTAN.UI.Handlers;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using FaceTAN.UI.CefSharpObjects;
 
 namespace FaceTAN.UI
 {
@@ -49,6 +43,7 @@ namespace FaceTAN.UI
             //chromium.JavascriptObjectRepository.Register("cefAsync", new CefProvider(chromium, this), true);
 
             chromium.RegisterAsyncJsObject("cefAsync", new CefProvider(chromium, this));
+            chromium.RegisterAsyncJsObject("cefDataSet", new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 10, chromium, this));
 
             IntializeEventHandlers();
         }
