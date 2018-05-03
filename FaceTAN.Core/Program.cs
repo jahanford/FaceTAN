@@ -30,7 +30,7 @@ namespace FaceTAN.Core
             ApiKeyStore lambdaKeys = new ApiKeyStore(new[] { "UINlGk5i5lmsha6RTFLEbd1XL65Ap1Y5kq2jsnuaYrGkAyQcCg" });
 
             // Setup DataSet
-            DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSetSize, fileName);
+            DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", dataSetSize, fileName, baseFilePath);
 
             // Setup SubSets
             List<SubSet> subSets = new List<SubSet>();

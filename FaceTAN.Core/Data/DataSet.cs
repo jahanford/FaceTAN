@@ -10,14 +10,14 @@ namespace FaceTAN.Core.Data
 {
     public class DataSet
     {
-        public DataSet(string bucketName, string accessKey, string secretKey, int maxTargets, string fileName)
+        public DataSet(string bucketName, string accessKey, string secretKey, int maxTargets, string fileName, string baseFilePath)
         {
             BucketName = bucketName;
             Credentials = new BasicAWSCredentials(accessKey, secretKey);
             Client = new AmazonS3Client(Credentials, Amazon.RegionEndpoint.USEast1);
             TargetImages = new Dictionary<string, Image>();
             SourceImages = new Dictionary<string, Image>();
-            PopulateImages(maxTargets, fileName);
+            PopulateImages(maxTargets, fileName, baseFilePath);
         }
 
         private string BucketName { get; }
