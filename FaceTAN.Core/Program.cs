@@ -11,6 +11,8 @@ namespace FaceTAN.Core
     {
         static void Main(string[] args)
         {
+            string baseFilePath = "D:\\Api Output\\";
+
             // Get desired data set size from the user
             Console.Write("Enter the desired target data set size or text file name: ");
             string fileName = Console.ReadLine();
@@ -37,7 +39,7 @@ namespace FaceTAN.Core
             //Setup the various APIs
             List<BaseApiHandler> apiList = new List<BaseApiHandler>();
             apiList.Add(new AmazonApiHandler(amazonAccessKeys, amazonPrivateKeys, dataSet, "testcollection"));
-            //apiList.Add(new AzureApiHandler(azureKeys, "https://australiaeast.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
+            apiList.Add(new AzureApiHandler(azureKeys, "https://australiaeast.api.cognitive.microsoft.com/face/v1.0", "", "test-person-group", dataSet));
             //apiList.Add(new AnimetricsApiHandler(animetricsKeys, "https://animetrics.p.mashape.com/", "test_gallery", dataSet));
             //apiList.Add(new LambdaApiHandler(lambdaKeys, "https://lambda-face-recognition.p.mashape.com/", dataSet));
 
@@ -50,7 +52,7 @@ namespace FaceTAN.Core
                     Task apiRun = api.RunApi();
                     apiRun.Wait();
                     Console.WriteLine("API {0} Complete. Exporting results...", api.ApiName);
-                    api.ExportResults("D:\\Api Output\\" + DateTime.Now.Date.ToShortDateString() + "-" + dataSetSize);
+                    api.ExportResults(baseFilePath + DateTime.Now.Date.ToShortDateString() + "-" + dataSetSize);
                     Console.WriteLine("Export Complete.", api.ApiName);
                 });
             });

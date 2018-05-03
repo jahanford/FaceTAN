@@ -18,7 +18,6 @@ namespace FaceTAN.Core.Data
             TargetImages = new Dictionary<string, Image>();
             SourceImages = new Dictionary<string, Image>();
             PopulateImages(maxTargets, fileName);
-
         }
 
         private string BucketName { get; }
@@ -36,7 +35,7 @@ namespace FaceTAN.Core.Data
         /*
          * Returns a list of all the images contained within the s3 bucket
          * */
-        public void PopulateImages(int maxImages, string fileName)
+        public void PopulateImages(int maxImages, string fileName, string baseFilePath)
         {
             Console.WriteLine("Populating DataSet from S3 bucket...");
             List<string> keyList;
@@ -66,7 +65,7 @@ namespace FaceTAN.Core.Data
             }
             else
             {
-                StreamReader file = new StreamReader("D:\\Api Output\\" + fileName);
+                StreamReader file = new StreamReader(baseFilePath + fileName);
                 bool addingTargets = true;
                 string line;
                 file.ReadLine(); // skip TARGET IMAGES label
