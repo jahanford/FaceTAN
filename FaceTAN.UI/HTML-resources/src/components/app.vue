@@ -14,6 +14,30 @@ import Vue from 'vue'
 import Component from "vue-class-component"
 import AppNav from './app-nav.vue';
 
+//
+// Working Object Binding Example
+//
+declare var CefSharp: CefSharp;
+
+interface CefSharp{
+    BindObjectAsync(x: string, y: string): any;
+}
+
+declare var boundDataSet: DataSet;
+
+interface DataSet{
+    hello(x: string): any
+}
+
+(async () => {
+    await CefSharp.BindObjectAsync("boundDataSet", "boundDataSet");
+
+    boundDataSet.hello('CefSharp').then(function (res: string)
+	{
+        console.log("CEF Response: " + res);
+    });
+
+})();
 
 @Component({
     name: 'app',
@@ -21,9 +45,10 @@ import AppNav from './app-nav.vue';
 })
 
 export default class App extends Vue {
-
+    
 }
 </script>
+
 
 <style lang="scss">
 
