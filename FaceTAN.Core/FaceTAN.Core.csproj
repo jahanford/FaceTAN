@@ -157,6 +157,7 @@
     <Compile Include="ApiHandler\AzureApiHandler.cs" />
     <Compile Include="ApiHandler\BaseApiHandler.cs" />
     <Compile Include="ApiHandler\LambdaApiHandler.cs" />
+    <Compile Include="ApiHandler\SkyBiometryApiHandler.cs" />
     <Compile Include="Data\ApiKeyStore.cs" />
     <Compile Include="Data\Models\Animetrics\Detect\AnimetricsDetectResponse.cs" />
     <Compile Include="Data\Models\Animetrics\Detect\AnimetricsDetectFace.cs" />

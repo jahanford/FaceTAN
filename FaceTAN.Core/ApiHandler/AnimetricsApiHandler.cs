@@ -130,6 +130,7 @@ namespace FaceTAN.Core.ApiHandler
         private AnimetricsDetectResponse DetectFace(MemoryStream stream)
         {
             string responseJson = Unirest.post(BaseUrl + "detect")
+                .header("X-Mashape-Key", "poBqadxqvtmsh41oAkQaextKC76rp1BI0gsjsnkufddJ8jP7PF")
                     .header("Accept", "application/json")
                     .field("api_key", ApiKeys.GetCurrentKey())
                     .field("selector", "FULL")
@@ -205,6 +206,7 @@ namespace FaceTAN.Core.ApiHandler
             var watch = Stopwatch.StartNew();
 
             HttpResponse<string> response = Unirest.post(BaseUrl + "detect")
+                .header("X-Mashape-Key", "poBqadxqvtmsh41oAkQaextKC76rp1BI0gsjsnkufddJ8jP7PF")
                     .header("Accept", "application/json")
                     .field("api_key", ApiKeys.GetCurrentKey())
                     .field("gallery_id", GalleryId)
