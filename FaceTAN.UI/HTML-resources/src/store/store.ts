@@ -1,7 +1,8 @@
 import Vue from 'vue';
-import Vuex from 'vuex'
-import { GetterTree, MutationTree, ActionTree,  } from 'vuex'
-import * as T from '../models/models'
+import Vuex from 'vuex';
+import { GetterTree, MutationTree, ActionTree,  } from 'vuex';
+import * as T from '../models/models';
+import * as BindingObject from '../models/BindingObject';
 
 Vue.use(Vuex)
 
@@ -15,7 +16,7 @@ interface State {
 
 const getters: GetterTree<State, any> = {
     
-    getDataset: (state, getters) => {
+    getDataSet: (state, getters) => {
         return state.dsmDataset;
     },
     getSubsets: (state, getters) => {
@@ -28,6 +29,13 @@ const getters: GetterTree<State, any> = {
 
 const mutations: MutationTree<State> = {
     
+    addDataSetImage: (state, payload: T.ImageElement) => {
+        state.dsmDataset.imageStore.push(payload);
+    },
+    
+    /* 
+    * SUBSETS
+    */
     reverse: (state) => state.dsmSubsets.reverse(),
      
     addSubset: (state, payload: T.ImageList) => {
@@ -48,9 +56,28 @@ const mutations: MutationTree<State> = {
 
 }
 
+declare var CefSharp: BindingObject.CefSharp;
+declare var boundDataSet: BindingObject.DataSet;
+
 const actions: ActionTree<State,any> = {
 
+    fetchS3Images: async (state) => {
 
+        await CefSharp.BindObjectAsync("boundDataSet", "boundDataSet");
+
+        console.log("Sending");
+        await boundDataSet.getImageArray().then(function (res: T.ImageElement[])
+        {
+
+            console.log("CEF Response: ");
+            
+            res.forEach( (index) => {
+                console.log("Adding: " + index.name);  
+                state.getters.getDataSet.imageStore.push(index);
+            });
+        });
+
+    }
 }
 
 function newGuid(): string {

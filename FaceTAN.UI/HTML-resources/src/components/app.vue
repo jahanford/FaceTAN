@@ -13,31 +13,7 @@
 import Vue from 'vue'
 import Component from "vue-class-component"
 import AppNav from './app-nav.vue';
-
-//
-// Working Object Binding Example
-//
-declare var CefSharp: CefSharp;
-
-interface CefSharp{
-    BindObjectAsync(x: string, y: string): any;
-}
-
-declare var boundDataSet: DataSet;
-
-interface DataSet{
-    hello(x: string): any
-}
-
-(async () => {
-    await CefSharp.BindObjectAsync("boundDataSet", "boundDataSet");
-
-    boundDataSet.hello('CefSharp').then(function (res: string)
-	{
-        console.log("CEF Response: " + res);
-    });
-
-})();
+import { ImageElement } from 'src/models/models';
 
 @Component({
     name: 'app',
@@ -45,7 +21,17 @@ interface DataSet{
 })
 
 export default class App extends Vue {
-    
+    created(){
+
+        //
+        // Use store action to fetch S3 Image List from C# Code
+        //
+        this.$store.dispatch('fetchS3Images').then(() => {
+
+            //DEBUG: Print Stores DataSet Object to console, post S3 import
+            console.log(this.$store.getters.getDataSet)
+        });      
+    }
 }
 </script>
 

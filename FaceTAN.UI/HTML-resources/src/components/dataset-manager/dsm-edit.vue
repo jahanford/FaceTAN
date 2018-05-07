@@ -8,7 +8,7 @@
         </div>
 
         <ul>
-            <li :id="image.guid" v-on:click="imageSelect(image.guid)" v-for="image in getDataSet().imageStore" :key="image.name">
+            <li :title="image.title" :id="image.guid" v-on:click="imageSelect(image.guid)" v-for="image in getDataSet().imageStore" :key="image.name">
                 <div class="Img-Thumb" v-bind:style="{ backgroundImage: 'url(' + image.url + ')' }"></div>
                 <span>{{image.name}}</span>
             </li>
@@ -53,7 +53,7 @@ export default class dsmEdit extends Vue {
     }
 
     getDataSet() {
-        return this.$store.getters.getDataset;
+        return this.$store.getters.getDataSet;
     }
 
     exitEdit() {
@@ -83,6 +83,8 @@ export default class dsmEdit extends Vue {
     height: 80px;
     margin-left: -5%;
     background-color: #2a3c4d;
+
+    z-index: 999;
 }
 ul{
     list-style: none;
@@ -90,14 +92,19 @@ ul{
     padding: 0;
     padding-top: 3%;
 
+    display: inline-block;
+    margin-bottom: 100px;
+
     .selected{
-        background-color: red !important;
+        color: white !important;
+        background-color: #2a3c4d !important;
     }
     li{
         float: left;
         display: table;
         padding: 1.5rem;
         width: initial;
+        cursor: pointer;
 
         .Img-Thumb{
             width: 10rem;
@@ -108,14 +115,23 @@ ul{
 
         span{
             display: block;
+            width: 8rem;
+            height: 4rem;
             font-size: 60%;
-            text-align: center;   
+            /* text-align: center; */
+            word-wrap: break-word;
+            overflow: hidden;
+            line-height: 2rem;
         }
 
     }
 
     li:hover{
         background-color: #eeedee;
+
+        span{
+            //TODO HOVER SHOW FULL NAME
+        }
     }
 }
 

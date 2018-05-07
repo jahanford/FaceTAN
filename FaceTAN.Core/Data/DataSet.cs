@@ -8,6 +8,32 @@ using System.IO;
 
 namespace FaceTAN.Core.Data
 {
+
+    public interface IImageElement
+    {
+        string guid { get; }
+        string name { get; }
+        string url { get; }
+    }
+
+    public class ImageElement : IImageElement
+    {
+        
+
+        public ImageElement(string name, string url)
+        {
+            this.guid = Guid.NewGuid().ToString();
+            this.name = name;
+            this.url = url;
+        }
+
+        public string guid { get; set; }
+
+        public string name { get; set; }
+
+        public string url { get; set; }
+    }
+
     public class DataSet
     {
         public DataSet(string bucketName, string accessKey, string secretKey, int maxTargets)
@@ -65,6 +91,26 @@ namespace FaceTAN.Core.Data
             Console.WriteLine("DataSet population complete. {0} target images retrieved. {1} source images retrieved.", TargetImages.Count, SourceImages.Count);
         }
 
+        public IImageElement[] GetImageArray()
+        {
+
+            List<string> keyList = GetKeyList();
+            List<IImageElement> imageList = new List<IImageElement>();
+
+            int titleIndex;
+            foreach (var key in keyList)
+            {
+                titleIndex = 0;
+                //Removing folder name for image title
+                if (key.ToString().Split('/').Length > 1) titleIndex = 1;
+
+                //Add to list
+                imageList.Add(new ImageElement(key.ToString().Split('/')[titleIndex], "https://s3-ap-southeast-2.amazonaws.com/capstone-dataset/" + key.ToString().Replace(" ", "%20") ));
+            }
+
+            return imageList.ToArray();
+        }
+
         /*
          * Returns an image with the specified key
          * */
@@ -102,7 +148,7 @@ namespace FaceTAN.Core.Data
         /*
          * Returns a complete list of all file keys contained in the amazon S3 bucket
          * */
-        private List<string> GetKeyList(int maxKeys = 256)
+        public List<string> GetKeyList(int maxKeys = 256)
         {
             List<string> keyList = new List<string>();
 

@@ -4,7 +4,8 @@ using FaceTAN.UI.Handlers;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using FaceTAN.UI.CefSharpObjects;
+using FaceTAN.Core;
+using FaceTAN.Core.Data;
 
 namespace FaceTAN.UI
 {
@@ -40,7 +41,7 @@ namespace FaceTAN.UI
             var formHandler = new FormProvider(this);
 
             //Register DataSet Object to boundDataSet Javascript Object
-            chromium.JavascriptObjectRepository.Register("boundDataSet", new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 10, chromium, this), true);
+            chromium.JavascriptObjectRepository.Register("boundDataSet", new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 10), true);
             
             IntializeEventHandlers();
         }

@@ -20,7 +20,6 @@ import dsmEdit from './dsm-edit.vue'
 import * as T from "../../models/models";
 
 
-
 @Component({
     components: { 
         dsmList, 
