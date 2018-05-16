@@ -1,14 +1,16 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
+/* Managers Page Components */ 
 import DataSetManagerComponent from '../components/dataset-manager/dsm-wrapper.vue';
+import TestManagerComponent from '../components/test-manager/tm-wrapper.vue';
 
 /* API Components */
-import AmazonComponent from '../components/amazon/index.vue';
-import AzureComponent from '../components/azure/index.vue';
-import AnimetricsComponent from '../components/animetrics/index.vue';
-import LambdaLabsComponent from '../components/lambda-labs/index.vue';
-import SkyBiometryComponent from '../components/sky-biometry/index.vue';
+import AmazonComponent from '../components/api/amazon/index.vue';
+import AzureComponent from '../components/api/azure/index.vue';
+import AnimetricsComponent from '../components/api/animetrics/index.vue';
+import LambdaLabsComponent from '../components/api/lambda-labs/index.vue';
+import SkyBiometryComponent from '../components/api/sky-biometry/index.vue';
 
 Vue.use(VueRouter);
 
@@ -26,6 +28,11 @@ const router: VueRouter = new VueRouter({
             path: '/dataset-manager',
             name: 'dataset-manager',
             component: DataSetManagerComponent     
+        },
+        {
+            path: '/test-manager',
+            name: 'test-manager',
+            component: TestManagerComponent
         },
         {
             path: '/amazon',

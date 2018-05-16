@@ -1,4 +1,3 @@
-
 /* Vue */
 import Vue from 'vue';
 import router from './router';
@@ -7,7 +6,7 @@ import store from './store/store';
 /* Sass Import */
 //import './';
 
-/* App component */
+/* App Component */
 import App from "./components/app.vue";
 
 new Vue({

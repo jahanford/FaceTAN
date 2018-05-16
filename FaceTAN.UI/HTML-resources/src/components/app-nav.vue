@@ -8,6 +8,9 @@
             <router-link class="nav-item" to="dataset-manager" tag="li">
                 <span>DataSet Manager</span>
             </router-link>
+            <router-link class="nav-item" to="test-manager" tag="li">
+                <span>Test Manager</span>
+            </router-link>
             <router-link class="nav-item" to="amazon" tag="li">
                     <span>Amazon</span>
             </router-link>
