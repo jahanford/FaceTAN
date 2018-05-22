@@ -11,6 +11,7 @@
             <router-link class="nav-item" to="test-manager" tag="li">
                 <span>Test Manager</span>
             </router-link>
+            <!--
             <router-link class="nav-item" to="amazon" tag="li">
                     <span>Amazon</span>
             </router-link>
@@ -26,6 +27,7 @@
             <router-link class="nav-item" to="sky-biometry" tag="li">
                     <span>SkyBiometry</span>
             </router-link>
+            -->
         </ul>
     </nav>
 </template>

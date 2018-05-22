@@ -76,7 +76,7 @@ export default class dsmEdit extends Vue {
 
 <style lang="scss" scoped>
 
-.Bottom-Bar{
+.Bottom-Bar {
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -85,8 +85,33 @@ export default class dsmEdit extends Vue {
     background-color: #2a3c4d;
 
     z-index: 999;
+
+    input {
+        background-color: #2a3c4d;
+
+        margin: 20px;
+        padding: 8px;
+        border: 1px solid #4c6b7d;
+
+        color: #bdbdbd;
+        font-family: 'Segoe UI';
+        font-size: 15px;
+    }
+
+    button {
+        background-color: #3498db;
+        
+        height: 38px;
+        width: 110px;
+        border: none;
+        border-radius: 2px;
+
+        font-family: 'Segoe UI';
+        font-size: 20px;
+    }
 }
-ul{
+
+ul {
     list-style: none;
     margin: 0;
     padding: 0;
