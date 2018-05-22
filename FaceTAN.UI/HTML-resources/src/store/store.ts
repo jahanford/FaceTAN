@@ -3,6 +3,9 @@ import Vuex from 'vuex';
 import { GetterTree, MutationTree, ActionTree,  } from 'vuex';
 import * as T from '../models/models';
 import * as BindingObject from '../models/BindingObject';
+import GlobalHelpers from '../GlobalHelpers';
+
+let Global = new GlobalHelpers();
 
 Vue.use(Vuex)
 
@@ -10,6 +13,8 @@ interface State {
     
     dsmDataset: T.ImageList;
     dsmSubsets: T.ImageList[];
+
+    tmTests: T.Test[];
 
     dsmView: T.DsmView;
 }
@@ -22,9 +27,18 @@ const getters: GetterTree<State, any> = {
     getSubsets: (state, getters) => {
         return state.dsmSubsets;
     },
+    getSubset: (state, getters) => {
+        return (searchGuid: string) => state.dsmSubsets.filter(subset => {
+            return subset.guid == searchGuid;
+        });
+    },
+    getTests: (state, getters) => {
+        return state.tmTests;
+    },
     getView: (state, getters) => {
         return state.dsmView;
     }
+
 }
 
 const mutations: MutationTree<State> = {
@@ -46,6 +60,21 @@ const mutations: MutationTree<State> = {
         state.dsmSubsets.forEach( (subset, index) => {
             if(subset.guid == guid){
                 state.dsmSubsets.splice(index, 1);
+            }
+        });
+    },
+
+    /* 
+    * TESTS
+    */
+    addTest: (state, payload: T.Test) => {
+    state.tmTests.push(payload);
+    },
+
+    removeTest:  (State, guid) => {
+        state.tmTests.forEach( (test, index) => {
+            if(test.guid == guid){
+                state.tmTests.splice(index, 1);
             }
         });
     },
@@ -80,13 +109,6 @@ const actions: ActionTree<State,any> = {
     }
 }
 
-function newGuid(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0, v = c === 'x' ? r : ( r & 0x3 | 0x8 );
-        return v.toString(16);
-    });
-}
-
 const state: State = {
 
     dsmDataset: {
@@ -94,28 +116,31 @@ const state: State = {
         name: "Dataset",
         imageStore: [
             {
-                guid: newGuid(),
+                guid: Global.newGuid(),
                 name: "james.jpg",
                 url: "dataset/james.jpg"
             },
             {
-                guid: newGuid(),
+                guid: Global.newGuid(),
                 name: "ashton.jpg",
                 url: "dataset/ashton.jpg"
             },
             {
-                guid: newGuid(),
+                guid: Global.newGuid(),
                 name: "jason.jpg",
                 url: "dataset/jason.jpg"
             },
             {
-                guid: newGuid(),
+                guid: Global.newGuid(),
                 name: "vinura.jpg",
                 url: "dataset/vinura.jpg"
             }
         ],
     },
     dsmSubsets: [],
+
+    tmTests: [],
+
     dsmView: {
         edit: false,
         guid: undefined

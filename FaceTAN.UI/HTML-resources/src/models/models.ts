@@ -16,3 +16,10 @@ export interface DsmView {
     guid: string;
 }
 
+export interface Test {
+    guid: string;
+    timestamp: Date;
+    sourceGuid: string;
+    targetGuid: string;
+    result?: string;
+}

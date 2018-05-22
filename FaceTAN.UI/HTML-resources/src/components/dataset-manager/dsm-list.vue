@@ -19,22 +19,18 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import Component from "vue-class-component"
 import * as T from "../../models/models";
+import GlobalHelpers from '../../GlobalHelpers';
+
+let Global = new GlobalHelpers();
 
 @Component
 export default class dsmList extends Vue {
-
-    newGuid(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0, v = c === 'x' ? r : ( r & 0x3 | 0x8 );
-            return v.toString(16);
-        });
-    }
 
     getSubsets() {
         return this.$store.getters.getSubsets;
     }
     newSubset() {
-        let generatedGuid = this.newGuid();
+        let generatedGuid = Global.newGuid();
 
         this.$store.commit('addSubset', {guid: generatedGuid , name: "New Subset", imageStore: []});
         this.editSubset(generatedGuid);

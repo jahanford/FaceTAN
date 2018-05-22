@@ -20,9 +20,10 @@
     "webpack": "^4.2.0"
   },
   "dependencies": {
+    "moment": "^2.22.1",
     "vue": "^2.5.16",
-    "vue-router": "^3.0.1",
     "vue-class-component": "^6.0.0",
+    "vue-router": "^3.0.1",
     "vuex": "^3.0.0"
   }
 }

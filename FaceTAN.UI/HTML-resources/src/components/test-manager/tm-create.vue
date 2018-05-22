@@ -1,5 +1,5 @@
 <template>
-    <table class="Create-Table">
+    <table>
         <h1>Create Test</h1>
         <tr>
             <td>
@@ -16,7 +16,7 @@
                 <h1>Target Subset</h1>
 
                 <select id="selectTarget" v-if="getSubsets().length >= 1">
-                    <option v-for="subset in getSubsets()" :key="subset.guid">{{subset.name}}</option>
+                    <option v-for="subset in getSubsets()" :key="subset.guid" :value="subset.guid">{{subset.name}}</option>
                 </select>
                 <span v-else class="Warn">Warn: No Subsets Exist</span>
             </td>
@@ -35,6 +35,9 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import Component from "vue-class-component";
+import GlobalHelpers from '../../GlobalHelpers';
+
+let Global = new GlobalHelpers();
 
 // Import Data Models
 import * as T from "../../models/models";
@@ -45,21 +48,26 @@ import * as T from "../../models/models";
 })
 
 export default class tmCreate extends Vue {
+    
     getSubsets() {
         return this.$store.getters.getSubsets;
     }
 
-    createTest() {
+    createTest(): void {
         let source: string = (<HTMLInputElement>document.getElementById("selectSource")).value;
         let target: string = (<HTMLInputElement>document.getElementById("selectTarget")).value;
-        //let target= document.getElementById("selectTarget").value;  
+        let generatedGuid: string = Global.newGuid();
+
+        this.$store.commit('addTest', {guid: generatedGuid, timestamp: Date.now(), sourceGuid: source, targetGuid: target});
         console.log("CREATED TEST Source: " + source + " Target: " + target);
+
+        console.log(this.$store.getters.getTests);
     }
 }
 </script>
 
-<style lang="scss">
-.Create-Table {
+<style lang="scss" scoped>
+table {
     
     font-size: 15px;
     text-align: left;

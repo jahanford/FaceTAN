@@ -1,18 +1,17 @@
 <template>
     <div>
 
-        <!-- Temp Spot Will Move To Fixed Bar Below -->
-        <div class="Bottom-Bar">
-            <input :value="getSubset().name" @input="updateName">
-            <button v-on:click="exitEdit()">Exit</button>
-        </div>
-
         <ul>
             <li :title="image.title" :id="image.guid" v-on:click="imageSelect(image.guid)" v-for="image in getDataSet().imageStore" :key="image.name">
                 <div class="Img-Thumb" v-bind:style="{ backgroundImage: 'url(' + image.url + ')' }"></div>
                 <span>{{image.name}}</span>
             </li>
         </ul>
+
+        <div class="Bottom-Bar">
+            <input :value="getSubset().name" @input="updateName">
+            <button v-on:click="exitEdit()">Exit</button>
+        </div>
 
     </div>
 </template>

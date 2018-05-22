@@ -25,7 +25,7 @@ namespace FaceTAN.UI
 
             InitializeComponent();
             this.Text = "FaceTan UI";
-            this.MinimumSize = new Size(1100, 700);
+            this.MinimumSize = new Size(1200, 700);
 
             CefInstance CefContext = new CefInstance();
 
