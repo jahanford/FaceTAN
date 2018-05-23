@@ -50,7 +50,7 @@ BREAKPOINT MIXINS
 $breakpoints: (
   tablet: 64rem,
   laptop: 70rem,
-  tv: 80rem
+  1300: 1300px
 );
 
 @mixin break($size) {
@@ -92,6 +92,10 @@ $breakpoints: (
             
             font-weight: 200;
 
+            @include break(1300) {
+                padding: 30px 0px 100px 17px;
+            }
+
             .bold{
                 font-weight: 600;
                 padding-left: 8px;
@@ -114,6 +118,10 @@ $breakpoints: (
 
                     span{
                         margin-left: 80px;
+
+                        @include break(1300) {
+                            margin-left: 60px;
+                        }
                     }
             }
 
@@ -126,6 +134,10 @@ $breakpoints: (
                 
                 span{
                     margin-left: 75px;
+
+                    @include break(1300) {
+                        margin-left: 55px;
+                    }
                 }
             }
         

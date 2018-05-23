@@ -18,8 +18,16 @@ export interface DsmView {
 
 export interface Test {
     guid: string;
-    timestamp: Date;
+    api: API;
+
     sourceGuid: string;
     targetGuid: string;
+
+    resultGuid: string;
     result?: string;
+}
+
+export enum API{
+    Amazon = "Amazon",
+    Azure = "Azure"
 }

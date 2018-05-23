@@ -239,5 +239,10 @@ namespace FaceTAN.Core.ApiHandler
                 }
             }
         }
+
+        public override ApiResults ReturnJsonResults()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

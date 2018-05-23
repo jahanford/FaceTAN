@@ -18,8 +18,6 @@ namespace FaceTAN.Core.Data
 
     public class ImageElement : IImageElement
     {
-        
-
         public ImageElement(string name, string url)
         {
             this.guid = Guid.NewGuid().ToString();
@@ -105,7 +103,7 @@ namespace FaceTAN.Core.Data
                 if (key.ToString().Split('/').Length > 1) titleIndex = 1;
 
                 //Add to list
-                imageList.Add(new ImageElement(key.ToString().Split('/')[titleIndex], "https://s3-ap-southeast-2.amazonaws.com/capstone-dataset/" + key.ToString().Replace(" ", "%20") ));
+                imageList.Add(new ImageElement(key.ToString(), "https://s3-ap-southeast-2.amazonaws.com/capstone-dataset/" + key.ToString().Replace(" ", "%20") ));
             }
 
             return imageList.ToArray();

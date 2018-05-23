@@ -10,6 +10,7 @@ using FaceTAN.Core.Data;
 using System.Threading.Tasks;
 using Amazon;
 using Newtonsoft.Json;
+using System.Web.Script.Serialization;
 
 namespace FaceTAN.Core.ApiHandler
 {
@@ -57,11 +58,21 @@ namespace FaceTAN.Core.ApiHandler
             List<FaceMatch> faceMatches = SearchCollectionForSourceImageFaces();
         }
 
+        public override ApiResults ReturnJsonResults()
+        {
+            var indexedString = new JavaScriptSerializer().Serialize(IndexedFaces);
+            var matchedString = new JavaScriptSerializer().Serialize(MatchResults);
+            var timingString = new JavaScriptSerializer().Serialize(TimingResults);
+
+            return new ApiResults(indexedString, matchedString, timingString);
+        }
+
         public override void ExportResults(string outputDirectory)
         {
             Directory.CreateDirectory(outputDirectory + "\\Rekognition");
 
             JsonSerializer serializer = new JsonSerializer();
+
             using (StreamWriter file = File.CreateText(outputDirectory + "\\Rekognition\\Rekognition_Indexed_Faces.txt"))
             {
                 serializer.Serialize(file, IndexedFaces);

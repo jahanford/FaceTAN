@@ -28,12 +28,17 @@ const getters: GetterTree<State, any> = {
         return state.dsmSubsets;
     },
     getSubset: (state, getters) => {
-        return (searchGuid: string) => state.dsmSubsets.filter(subset => {
-            return subset.guid == searchGuid;
+        return (searchSubsetGuid: string) => state.dsmSubsets.filter(subset => {
+            return subset.guid == searchSubsetGuid;
         });
     },
     getTests: (state, getters) => {
         return state.tmTests;
+    },
+    getTest: (state, getters) => {
+        return (searchTestGuid: string) => state.tmTests.filter(test => {
+            return test.guid == searchTestGuid;      
+        });
     },
     getView: (state, getters) => {
         return state.dsmView;
@@ -87,6 +92,7 @@ const mutations: MutationTree<State> = {
 
 declare var CefSharp: BindingObject.CefSharp;
 declare var boundDataSet: BindingObject.DataSet;
+declare var boundTestRunner: BindingObject.TestRunner;
 
 const actions: ActionTree<State,any> = {
 
@@ -106,7 +112,32 @@ const actions: ActionTree<State,any> = {
             });
         });
 
+    },
+
+    requestTestResult: async (state, testObject: T.Test) => {
+        await CefSharp.BindObjectAsync("boundTestRunner", "boundTestRunner");
+        
+        let sourceKeyArray: string[] = [];
+        state.getters.getSubset(testObject.sourceGuid)[0].imageStore.forEach(element => {
+            sourceKeyArray.push(element.name);
+        });;
+
+        let targetKeyArray: string[] = [];
+        state.getters.getSubset(testObject.targetGuid)[0].imageStore.forEach((image: T.ImageElement) => {
+            targetKeyArray.push(image.name);
+        });;
+
+        console.log("Sending Test Run Request...");
+        console.log(sourceKeyArray);
+        console.log(targetKeyArray);
+
+        await boundTestRunner.runTest(testObject.guid,  sourceKeyArray, targetKeyArray).then((res: string) => {
+            console.log("CEF Response: ");
+            console.log(res);
+            testObject.result = res;
+        });
     }
+    
 }
 
 const state: State = {

@@ -221,5 +221,10 @@ namespace FaceTAN.Core.ApiHandler
 
             return JsonConvert.DeserializeObject<AnimetricsRecognizeResponse>(response.Body);
         }
+
+        public override ApiResults ReturnJsonResults()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

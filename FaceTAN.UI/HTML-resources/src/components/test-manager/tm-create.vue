@@ -55,10 +55,11 @@ export default class tmCreate extends Vue {
 
     createTest(): void {
         let source: string = (<HTMLInputElement>document.getElementById("selectSource")).value;
-        let target: string = (<HTMLInputElement>document.getElementById("selectTarget")).value;
-        let generatedGuid: string = Global.newGuid();
+        let target: string = (<HTMLInputElement>document.getElementById("selectTarget")).value; 
 
-        this.$store.commit('addTest', {guid: generatedGuid, timestamp: Date.now(), sourceGuid: source, targetGuid: target});
+        this.$store.commit('addTest', {guid: Global.newGuid(), api: T.API.Amazon, sourceGuid: source, targetGuid: target, resultGuid: null});
+        this.$store.commit('addTest', {guid: Global.newGuid(), api: T.API.Azure, sourceGuid: source, targetGuid: target, resultGuid: null});
+
         console.log("CREATED TEST Source: " + source + " Target: " + target);
 
         console.log(this.$store.getters.getTests);

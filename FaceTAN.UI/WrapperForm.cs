@@ -25,7 +25,7 @@ namespace FaceTAN.UI
 
             InitializeComponent();
             this.Text = "FaceTan UI";
-            this.MinimumSize = new Size(1200, 700);
+            this.MinimumSize = new Size(1200, 800);
 
             CefInstance CefContext = new CefInstance();
 
@@ -41,8 +41,10 @@ namespace FaceTAN.UI
             var formHandler = new FormProvider(this);
 
             //Register DataSet Object to boundDataSet Javascript Object
-            chromium.JavascriptObjectRepository.Register("boundDataSet", new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 10), true);
-            
+            DataSet dataSet = new DataSet("capstone-dataset", "AKIAJJKYA2TLOIPHNNVA", "BBN6C1W3Lx0bo+mOgmD7xjlfstoA3qKA8ppIr38A", 0);
+            chromium.JavascriptObjectRepository.Register("boundDataSet", dataSet, true);
+            chromium.JavascriptObjectRepository.Register("boundTestRunner", new TestRunner(dataSet), true);
+
             IntializeEventHandlers();
         }
 
@@ -102,8 +104,6 @@ namespace FaceTAN.UI
             this.Controls.Add(chromium);
             Console.WriteLine("Wrapper loaded!");
         }
-
-        
 
         interface IFormProvider
         {
