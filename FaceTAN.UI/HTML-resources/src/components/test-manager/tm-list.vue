@@ -109,6 +109,8 @@ export default class tmList extends Vue {
 </script>
 
 <style lang="scss" >
+    @import url('https://fonts.googleapis.com/css?family=Roboto:500');
+
     .Test-Explorer {
         span {
             font-size: 25px;
@@ -213,7 +215,7 @@ export default class tmList extends Vue {
                         min-height: 40vh;
                         color: #f1f1f1;
                         background-color: #2b2f3e;
-                        font-family: Roboto;
+                        font-family: 'Roboto', sans-serif;
                         font-weight: 500;
                         padding: 15px;
                         font-size: 15px;
