@@ -12,12 +12,13 @@
             </tr>
         
             <tr v-for="test in getTests()" :key="test.guid" :id="test.guid">
-                <td>{{ test.api }}</td>
+                <td>{{ apiName[test.api] }}</td>
                 <td><span>{{ test.guid }}</span></td>
                 <td>{{ getSubset(test.sourceGuid).name }}</td>
                 <td>{{ getSubset(test.targetGuid).name }}</td>
                 <td>
-                    <button class="clear" v-if="test.resultGuid != null" v-on:click="clearTest(test.guid)">Clear</button>
+                    <button class="clear" v-if="test.resultGuid != null && test.result.length > 0" v-on:click="clearTest(test.guid)">Clear</button>
+                    <button class="clear" v-else-if="test.resultGuid != null" disabled>Loading</button>
                     <button class="run" v-else v-on:click="runTest(test.guid)">Run</button>
                 </td>
             </tr>
@@ -44,6 +45,8 @@ import * as T from "../../models/models";
 
 export default class tmList extends Vue {
 
+    apiName: string[] = ["Amazon", "Azure"];
+
     mounted() {
         this.getTests().forEach(test => {
             if(test.resultGuid != null) this.mountOutput(test);
@@ -61,8 +64,8 @@ export default class tmList extends Vue {
         let testObject: T.Test = this.$store.getters.getTest(testGuid)[0];
 
         testObject.resultGuid = Global.newGuid();
+        
         this.$store.dispatch('requestTestResult', testObject).then(() => {
-
             this.mountOutput(testObject);
         });
 
@@ -159,6 +162,7 @@ export default class tmList extends Vue {
                             font-size: 18px;
                             cursor: pointer;
                             padding: 7px 10px;
+                            color: black !important;
 
                             &.run {
                                 background-color: #2ecc71;

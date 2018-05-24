@@ -131,7 +131,7 @@ const actions: ActionTree<State,any> = {
         console.log(sourceKeyArray);
         console.log(targetKeyArray);
 
-        await boundTestRunner.runTest(testObject.guid,  sourceKeyArray, targetKeyArray).then((res: string) => {
+        await boundTestRunner.runTest(testObject.api,  sourceKeyArray, targetKeyArray).then((res: string) => {
             console.log("CEF Response: ");
             console.log(res);
             testObject.result = res;
@@ -143,29 +143,29 @@ const actions: ActionTree<State,any> = {
 const state: State = {
 
     dsmDataset: {
-        guid: "123456789",
+        guid: Global.newGuid(),
         name: "Dataset",
         imageStore: [
-            {
-                guid: Global.newGuid(),
-                name: "james.jpg",
-                url: "dataset/james.jpg"
-            },
-            {
-                guid: Global.newGuid(),
-                name: "ashton.jpg",
-                url: "dataset/ashton.jpg"
-            },
-            {
-                guid: Global.newGuid(),
-                name: "jason.jpg",
-                url: "dataset/jason.jpg"
-            },
-            {
-                guid: Global.newGuid(),
-                name: "vinura.jpg",
-                url: "dataset/vinura.jpg"
-            }
+            // {
+            //     guid: Global.newGuid(),
+            //     name: "james.jpg",
+            //     url: "dataset/james.jpg"
+            // },
+            // {
+            //     guid: Global.newGuid(),
+            //     name: "ashton.jpg",
+            //     url: "dataset/ashton.jpg"
+            // },
+            // {
+            //     guid: Global.newGuid(),
+            //     name: "jason.jpg",
+            //     url: "dataset/jason.jpg"
+            // },
+            // {
+            //     guid: Global.newGuid(),
+            //     name: "vinura.jpg",
+            //     url: "dataset/vinura.jpg"
+            // }
         ],
     },
     dsmSubsets: [],

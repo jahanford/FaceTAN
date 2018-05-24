@@ -11,6 +11,7 @@ using System.IO;
 using Polly;
 using FaceTAN.Core.Data.Models.Timing;
 using System.Diagnostics;
+using System.Web.Script.Serialization;
 
 namespace FaceTAN.Core.ApiHandler
 {
@@ -53,6 +54,15 @@ namespace FaceTAN.Core.ApiHandler
             await InitApiAsync();
             await MatchSourceFaces();
             return;
+        }
+
+        public override ApiResults ReturnJsonResults()
+        {
+            var indexedString = new JavaScriptSerializer().Serialize((TargetFaceList.Concat(SourceFaceList)));
+            var matchedString = new JavaScriptSerializer().Serialize(SourceMatchList);
+            var timingString = new JavaScriptSerializer().Serialize(TimingResults);
+
+            return new ApiResults(indexedString, matchedString, timingString);
         }
 
         public override void ExportResults(string outputDirectory)
@@ -238,11 +248,6 @@ namespace FaceTAN.Core.ApiHandler
                     Console.WriteLine("Face identified as {0}", entry.Key);
                 }
             }
-        }
-
-        public override ApiResults ReturnJsonResults()
-        {
-            throw new NotImplementedException();
         }
     }
 }

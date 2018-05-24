@@ -28,6 +28,6 @@ export interface Test {
 }
 
 export enum API{
-    Amazon = "Amazon",
-    Azure = "Azure"
+    Amazon,
+    Azure
 }

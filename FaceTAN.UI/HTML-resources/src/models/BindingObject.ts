@@ -1,3 +1,5 @@
+import * as T from './models';
+
 declare var CefSharp: CefSharp;
 
 export interface CefSharp{
@@ -9,5 +11,5 @@ export interface DataSet{
 }
 
 export interface TestRunner{
-    runTest(testGuid: string, sourceKeyArray: string[], targetKeyArray: string[]): any;
+    runTest(targetAPI: T.API, sourceKeyArray: string[], targetKeyArray: string[]): any;
 }
