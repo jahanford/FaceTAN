@@ -145,28 +145,7 @@ const state: State = {
     dsmDataset: {
         guid: Global.newGuid(),
         name: "Dataset",
-        imageStore: [
-            // {
-            //     guid: Global.newGuid(),
-            //     name: "james.jpg",
-            //     url: "dataset/james.jpg"
-            // },
-            // {
-            //     guid: Global.newGuid(),
-            //     name: "ashton.jpg",
-            //     url: "dataset/ashton.jpg"
-            // },
-            // {
-            //     guid: Global.newGuid(),
-            //     name: "jason.jpg",
-            //     url: "dataset/jason.jpg"
-            // },
-            // {
-            //     guid: Global.newGuid(),
-            //     name: "vinura.jpg",
-            //     url: "dataset/vinura.jpg"
-            // }
-        ],
+        imageStore: [],
     },
     dsmSubsets: [],
 

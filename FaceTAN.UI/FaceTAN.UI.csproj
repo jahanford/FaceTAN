@@ -91,7 +91,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CefSharpObjects\DataSet.cs" />
     <Compile Include="Handlers\MenuHandler.cs" />
     <Compile Include="WrapperForm.cs">
       <SubType>Form</SubType>
